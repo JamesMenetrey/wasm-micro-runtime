@@ -44,6 +44,16 @@ extern "C" {
 #define SHUT_WR 1
 #define SHUT_RDWR 2
 
+/* Address families.  */
+#define AF_INET 2 /* IP protocol family.  */
+
+/* Standard well-defined IP protocols.  */
+#define IPPROTO_TCP 6 /* Transmission Control Protocol.  */
+
+/* Types of sockets.  */	
+#define SOCK_DGRAM 2 /* Connectionless, unreliable datagrams
+				   of fixed maximum length.  */
+
 struct msghdr {
     void *msg_name;
     socklen_t msg_namelen;

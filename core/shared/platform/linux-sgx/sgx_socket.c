@@ -256,8 +256,26 @@ os_socket_connect(bh_socket_t socket, const char *addr, int port)
 int
 os_socket_create(bh_socket_t *sock, int tcp_or_udp)
 {
-    errno = ENOSYS;
-    return -1;
+    if (!sock) {
+        return BHT_ERROR;
+    }
+
+    if (1 == tcp_or_udp) {
+        if (ocall_socket(sock, AF_INET, SOCK_STREAM, IPPROTO_TCP) != SGX_SUCCESS) {
+            TRACE_OCALL_FAIL();
+            return -1;
+        }
+    }
+    else if (0 == tcp_or_udp) {
+        if (ocall_socket(sock, AF_INET, SOCK_DGRAM, 0) != SGX_SUCCESS) {
+            TRACE_OCALL_FAIL();
+            return -1;
+        }
+    }
+
+    os_printf("Allocated the socket: %d\n", *sock);
+
+    return (*sock == -1) ? BHT_ERROR : BHT_OK;
 }
 
 int
