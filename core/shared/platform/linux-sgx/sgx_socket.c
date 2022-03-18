@@ -63,6 +63,29 @@ int
 ocall_send(int *p_ret, int sockfd, const void *buf, size_t len, int flags);
 
 int
+ocall_connect(int *p_ret, int sockfd, void *addr, uint32_t addrlen);
+
+static int
+textual_addr_to_sockaddr(const char *textual, int port, struct sockaddr_in *out)
+{
+    assert(textual);
+
+    out->sin_family = AF_INET;
+
+    if (ocall_htons(&out->sin_port, port) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    if (ocall_inet_addr(&out->sin_addr.s_addr, textual, strlen(textual) + 1) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    return BHT_OK;
+}
+
+int
 socket(int domain, int type, int protocol)
 {
     int ret;
@@ -362,13 +385,33 @@ fail:
 int
 os_socket_close(bh_socket_t socket)
 {
+    os_printf("UniNE: os_socket_close is not implemented!\n");
     errno = ENOSYS;
     return -1;
 }
 
 int
 os_socket_connect(bh_socket_t socket, const char *addr, int port)
-{}
+{
+    struct sockaddr_in addr_in = { 0 };
+    socklen_t addr_len = sizeof(struct sockaddr_in);
+    int ret = 0;
+
+    if ((ret = textual_addr_to_sockaddr(addr, port, &addr_in)) < 0) {
+        return ret;
+    }
+
+    if (ocall_connect(&ret, socket, &addr_in, addr_len) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+    
+    if (ret == -1) {
+        return BHT_ERROR;
+    }
+
+    return BHT_OK;
+}
 
 int
 os_socket_create(bh_socket_t *sock, int tcp_or_udp)

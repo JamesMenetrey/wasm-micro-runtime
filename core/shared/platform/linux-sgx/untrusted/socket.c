@@ -139,7 +139,14 @@ ocall_recv(int sockfd, void *buf, size_t len, int flags)
     return recv(sockfd, buf, len, flags);
 }
 
-int ocall_send(int sockfd, const void *buf, size_t len, int flags)
+int
+ocall_send(int sockfd, const void *buf, size_t len, int flags)
 {
     return send(sockfd, buf, len, flags);
+}
+
+int
+ocall_connect(int sockfd, void *addr, uint32_t addrlen)
+{
+    return connect(sockfd, (const struct sockaddr*)addr, addrlen);
 }
