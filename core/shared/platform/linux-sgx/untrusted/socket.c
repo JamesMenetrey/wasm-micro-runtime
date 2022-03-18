@@ -73,3 +73,9 @@ ocall_shutdown(int sockfd, int how)
 {
     return shutdown(sockfd, how);
 }
+
+uint32_t
+ocall_inet_network(const void *cp, int cp_size)
+{
+    return inet_network(cp);
+}

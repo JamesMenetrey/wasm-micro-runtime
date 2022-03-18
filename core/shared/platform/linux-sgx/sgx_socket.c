@@ -25,6 +25,9 @@ int
 ocall_shutdown(int *p_ret, int sockfd, int how);
 
 int
+ocall_inet_network(uint32_t* retval, const void* cp, int cp_size);
+
+int
 socket(int domain, int type, int protocol)
 {
     int ret;
@@ -281,8 +284,15 @@ os_socket_create(bh_socket_t *sock, int tcp_or_udp)
 int
 os_socket_inet_network(const char *cp, uint32 *out)
 {
-    errno = ENOSYS;
-    return -1;
+    if (!cp)
+        return BHT_ERROR;
+
+    if (ocall_inet_network(out, cp, strlen(cp)) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    return BHT_OK;
 }
 
 int

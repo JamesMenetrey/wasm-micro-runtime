@@ -118,6 +118,8 @@ enclave {
         int ocall_pthread_rwlock_unlock([user_check]void *rwlock);
 
         int ocall_get_errno();
+
+        /* sockets */
         int ocall_socket(int domain, int type, int protocol);
         int ocall_getsockopt(int sockfd, int level, int optname,
                              [out, size=val_buf_size]void *val_buf,
@@ -132,5 +134,6 @@ enclave {
                               unsigned int msg_buf_size,
                               int flags);
         int ocall_shutdown(int sockfd, int how);
+        uint32_t ocall_inet_network([in, size=cp_size]const void *cp, int cp_size);
     };
 };
