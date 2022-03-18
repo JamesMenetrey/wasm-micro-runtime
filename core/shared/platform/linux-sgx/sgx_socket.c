@@ -28,6 +28,28 @@ int
 ocall_inet_network(uint32_t* retval, const void* cp, int cp_size);
 
 int
+ocall_inet_addr(uint32_t* retval, const void* cp, int cp_size);
+
+int
+ocall_fcntl_long(int *p_ret, int fd, int cmd, long arg);
+
+int
+ocall_setsockopt(int *p_ret, int sockfd, int level, int optname,
+                 void *optval, unsigned int optlen);
+
+uint16_t
+ocall_htons(uint16_t *p_ret, uint16_t hostshort);
+
+uint16_t
+ocall_ntohs(uint16_t *p_ret, uint16_t netshort);
+
+int
+ocall_bind(int *p_ret, int sockfd, const void *addr, uint32_t addrlen);
+
+int
+ocall_getsockname(int *p_ret, int sockfd, void *addr, uint32_t *addrlen, uint32_t addr_size);
+
+int
 socket(int domain, int type, int protocol)
 {
     int ret;
@@ -241,8 +263,78 @@ os_socket_accept(bh_socket_t server_sock, bh_socket_t *sock, void *addr,
 int
 os_socket_bind(bh_socket_t socket, const char *host, int *port)
 {
-    errno = ENOSYS;
-    return -1;
+    struct sockaddr_in addr;
+    struct linger ling;
+    unsigned int socklen;
+    int ret;
+
+    assert(host);
+    assert(port);
+
+    ling.l_onoff = 1;
+    ling.l_linger = 0;
+
+    if (ocall_fcntl_long(&ret, socket, F_SETFD, FD_CLOEXEC) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+    
+    if (ret < 0) {
+        goto fail;
+    }
+    
+    if (ocall_setsockopt(&ret, socket, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling)) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    if (ret < 0) {
+        goto fail;
+    }
+
+    if (ocall_inet_addr(&addr.sin_addr.s_addr, host, strlen(host)) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    if (ocall_htons(&addr.sin_port, *port) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    addr.sin_family = AF_INET;
+
+    if (ocall_bind(&ret, socket, &addr, sizeof(addr)) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    os_printf("UniNE: ocall_bind returned: %d\n", ret);
+
+    if (ret < 0) {
+        goto fail;
+    }
+
+    socklen = sizeof(addr);
+
+    if (ocall_getsockname(&ret, socket, (void *)&addr, &socklen, socklen) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    if (ret == -1) {
+        goto fail;
+    }
+
+    if (ocall_ntohs((uint16_t*)port, addr.sin_port) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    return BHT_OK;
+
+fail:
+    return BHT_ERROR;
 }
 
 int

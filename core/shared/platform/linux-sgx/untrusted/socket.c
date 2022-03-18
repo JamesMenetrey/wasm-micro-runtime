@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 int
 ocall_socket(int domain, int type, int protocol)
@@ -78,4 +80,42 @@ uint32_t
 ocall_inet_network(const void *cp, int cp_size)
 {
     return inet_network(cp);
+}
+
+uint32_t
+ocall_inet_addr(const void *cp, int cp_size)
+{
+    return inet_addr(cp);
+}
+
+int
+ocall_setsockopt(int sockfd, int level, int optname,
+                 void *optval, unsigned int optlen)
+{
+    return setsockopt(sockfd, level, optname, optval, optlen);
+}
+
+uint16_t
+ocall_htons(uint16_t hostshort)
+{
+    return htons(hostshort);
+}
+
+uint16_t
+ocall_ntohs(uint16_t netshort)
+{
+    return ntohs(netshort);
+}
+
+int
+ocall_bind(int sockfd, const void *addr, uint32_t addrlen)
+{
+    return bind(sockfd, (const struct sockaddr *)addr, addrlen);
+}
+
+int
+ocall_getsockname(int sockfd, void *addr, uint32_t *addrlen,
+                  uint32_t addr_size)
+{
+    return getsockname(sockfd, (struct sockaddr*)addr, addrlen);
 }
