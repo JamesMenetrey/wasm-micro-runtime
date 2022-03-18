@@ -418,6 +418,7 @@ handle_cmd_set_wasi_args(uint64 *args, int32 argc)
 
     total_size += sizeof(char *) * (uint64)dir_list_size
                   + sizeof(char *) * (uint64)env_list_size
+                  + sizeof(char *) * (uint64)addr_pool_list_size
                   + sizeof(char *) * (uint64)wasi_argc;
 
     for (i = 0; i < dir_list_size; i++) {
