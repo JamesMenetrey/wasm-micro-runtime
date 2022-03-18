@@ -148,5 +148,7 @@ enclave {
         int ocall_listen(int sockfd, int backlog);
         int ocall_accept(int sockfd, [in, size=addr_size]void *addr,
                   [in, out, size=4] uint32_t *addrlen, uint32_t addr_size);
+        int ocall_recv(int sockfd, [out, size=len]void *buf, size_t len, int flags);
+        int ocall_send(int sockfd, [in, size=len]const void *buf, size_t len, int flags);
     };
 };

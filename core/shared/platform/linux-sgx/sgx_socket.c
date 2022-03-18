@@ -57,6 +57,12 @@ int
 ocall_listen(int *p_ret, int sockfd, int backlog);
 
 int
+ocall_recv(int *p_ret, int sockfd, void *buf, size_t len, int flags);
+
+int
+ocall_send(int *p_ret, int sockfd, const void *buf, size_t len, int flags);
+
+int
 socket(int domain, int type, int protocol)
 {
     int ret;
@@ -419,22 +425,33 @@ os_socket_listen(bh_socket_t socket, int max_client)
 int
 os_socket_recv(bh_socket_t socket, void *buf, unsigned int len)
 {
-    errno = ENOSYS;
-    return -1;
+    int ret;
+
+    if (ocall_recv(&ret, socket, buf, len, 0) != SGX_SUCCESS) {
+        errno = ENOSYS;
+        return -1;
+    }
+
+    return ret;
 }
 
 int
 os_socket_send(bh_socket_t socket, const void *buf, unsigned int len)
 {
-    errno = ENOSYS;
-    return -1;
+    int ret;
+
+    if (ocall_send(&ret, socket, buf, len, 0) != SGX_SUCCESS) {
+        errno = ENOSYS;
+        return -1;
+    }
+
+    return ret;
 }
 
 int
 os_socket_shutdown(bh_socket_t socket)
 {
-    errno = ENOSYS;
-    return -1;
+    return shutdown(socket, O_RDWR);
 }
 
 #endif

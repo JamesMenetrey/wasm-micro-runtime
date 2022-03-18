@@ -126,8 +126,20 @@ ocall_listen(int sockfd, int backlog)
     return listen(sockfd, backlog);
 }
 
-int ocall_accept(int sockfd, void *addr, uint32_t *addrlen,
+int
+ocall_accept(int sockfd, void *addr, uint32_t *addrlen,
                  uint32_t addr_size)
 {
     return accept(sockfd, (struct sockaddr *)addr, addrlen);
+}
+
+int
+ocall_recv(int sockfd, void *buf, size_t len, int flags)
+{
+    return recv(sockfd, buf, len, flags);
+}
+
+int ocall_send(int sockfd, const void *buf, size_t len, int flags)
+{
+    return send(sockfd, buf, len, flags);
 }
