@@ -37,6 +37,10 @@ int
 ocall_setsockopt(int *p_ret, int sockfd, int level, int optname,
                  void *optval, unsigned int optlen);
 
+int
+ocall_accept(int *p_ret, int sockfd, void *addr, uint32_t *addrlen,
+                 uint32_t addr_size);
+
 uint16_t
 ocall_htons(uint16_t *p_ret, uint16_t hostshort);
 
@@ -260,8 +264,19 @@ os_socket_accept(bh_socket_t server_sock, bh_socket_t *sock, void *addr,
                  unsigned int *addrlen)
 
 {
-    errno = ENOSYS;
-    return -1;
+    struct sockaddr addr_tmp;
+    unsigned int len = sizeof(struct sockaddr);
+
+    if (ocall_accept(sock, server_sock, &addr_tmp, &len, len) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    if (*sock < 0) {
+        return BHT_ERROR;
+    }
+
+    return BHT_OK;
 }
 int
 os_socket_bind(bh_socket_t socket, const char *host, int *port)

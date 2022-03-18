@@ -89,6 +89,13 @@ struct linger {
     int l_linger;		/* Time to linger.  */
 };
 
+/* Structure describing a generic socket address.  */
+struct sockaddr
+  {
+    unsigned short int sa_family; /* Common data: address family and length.  */
+    char sa_data[14];		/* Address data.  */
+  };
+
 int
 socket(int domain, int type, int protocol);
 
