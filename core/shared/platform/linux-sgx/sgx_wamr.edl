@@ -145,5 +145,6 @@ enclave {
                  uint32_t addrlen);
         int ocall_getsockname(int sockfd, [in, size=addr_size]void *addr,
                               [in, out, size=4]uint32_t *addrlen, uint32_t addr_size);
+        int ocall_listen(int sockfd, int backlog);
     };
 };

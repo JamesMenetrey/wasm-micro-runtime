@@ -119,3 +119,9 @@ ocall_getsockname(int sockfd, void *addr, uint32_t *addrlen,
 {
     return getsockname(sockfd, (struct sockaddr*)addr, addrlen);
 }
+
+int
+ocall_listen(int sockfd, int backlog)
+{
+    return listen(sockfd, backlog);
+}

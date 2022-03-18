@@ -50,6 +50,9 @@ int
 ocall_getsockname(int *p_ret, int sockfd, void *addr, uint32_t *addrlen, uint32_t addr_size);
 
 int
+ocall_listen(int *p_ret, int sockfd, int backlog);
+
+int
 socket(int domain, int type, int protocol)
 {
     int ret;
@@ -390,8 +393,14 @@ os_socket_inet_network(const char *cp, uint32 *out)
 int
 os_socket_listen(bh_socket_t socket, int max_client)
 {
-    errno = ENOSYS;
-    return -1;
+    int ret;
+
+    if (ocall_listen(&ret, socket, max_client) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+
+    return ret == 0 ? BHT_OK : BHT_ERROR;
 }
 
 int
