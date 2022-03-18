@@ -390,8 +390,6 @@ os_socket_create(bh_socket_t *sock, int tcp_or_udp)
         }
     }
 
-    os_printf("Allocated the socket: %d\n", *sock);
-
     return (*sock == -1) ? BHT_ERROR : BHT_OK;
 }
 
