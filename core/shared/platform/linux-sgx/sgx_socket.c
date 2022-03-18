@@ -327,8 +327,6 @@ os_socket_bind(bh_socket_t socket, const char *host, int *port)
         return -1;
     }
 
-    os_printf("UniNE: ocall_bind returned: %d\n", ret);
-
     if (ret < 0) {
         goto fail;
     }
