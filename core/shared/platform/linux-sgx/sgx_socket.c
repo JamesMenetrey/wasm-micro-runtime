@@ -339,7 +339,7 @@ os_socket_bind(bh_socket_t socket, const char *host, int *port)
         goto fail;
     }
 
-    if (ocall_inet_addr(&addr.sin_addr.s_addr, host, strlen(host)) != SGX_SUCCESS) {
+    if (ocall_inet_addr(&addr.sin_addr.s_addr, host, strlen(host) + 1) != SGX_SUCCESS) {
         TRACE_OCALL_FAIL();
         return -1;
     }
@@ -442,7 +442,7 @@ os_socket_inet_network(const char *cp, uint32 *out)
     if (!cp)
         return BHT_ERROR;
 
-    if (ocall_inet_network(out, cp, strlen(cp)) != SGX_SUCCESS) {
+    if (ocall_inet_network(out, cp, strlen(cp) + 1) != SGX_SUCCESS) {
         TRACE_OCALL_FAIL();
         return -1;
     }
