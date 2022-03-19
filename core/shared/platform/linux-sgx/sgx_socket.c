@@ -302,6 +302,7 @@ os_socket_accept(bh_socket_t server_sock, bh_socket_t *sock, void *addr,
     }
 
     if (*sock < 0) {
+        errno = get_errno();
         return BHT_ERROR;
     }
 
@@ -379,6 +380,7 @@ os_socket_bind(bh_socket_t socket, const char *host, int *port)
     return BHT_OK;
 
 fail:
+    errno = get_errno();
     return BHT_ERROR;
 }
 
@@ -407,6 +409,7 @@ os_socket_connect(bh_socket_t socket, const char *addr, int port)
     }
     
     if (ret == -1) {
+        errno = get_errno();
         return BHT_ERROR;
     }
 
@@ -433,7 +436,12 @@ os_socket_create(bh_socket_t *sock, int tcp_or_udp)
         }
     }
 
-    return (*sock == -1) ? BHT_ERROR : BHT_OK;
+    if (*sock == -1) {
+        errno = get_errno();
+        return BHT_ERROR;
+    }
+
+    return BHT_OK;
 }
 
 int
@@ -460,7 +468,12 @@ os_socket_listen(bh_socket_t socket, int max_client)
         return -1;
     }
 
-    return ret == 0 ? BHT_OK : BHT_ERROR;
+    if (ret == -1) {
+        errno = get_errno();
+        return BHT_ERROR;
+    }
+
+    return BHT_OK;
 }
 
 int
@@ -472,6 +485,9 @@ os_socket_recv(bh_socket_t socket, void *buf, unsigned int len)
         errno = ENOSYS;
         return -1;
     }
+
+    if (ret == -1)
+        errno = get_errno();
 
     return ret;
 }
@@ -485,6 +501,9 @@ os_socket_send(bh_socket_t socket, const void *buf, unsigned int len)
         errno = ENOSYS;
         return -1;
     }
+
+    if (ret == -1)
+        errno = get_errno();
 
     return ret;
 }
