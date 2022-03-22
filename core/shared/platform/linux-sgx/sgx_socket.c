@@ -11,28 +11,6 @@
 
 /** OCALLs prototypes **/
 int
-ocall_socket(int *p_ret, int domain, int type, int protocol);
-int
-ocall_getsockopt(int *p_ret, int sockfd, int level, int optname, void *val_buf,
-                 unsigned int val_buf_size, void *len_buf);
-
-int
-ocall_sendmsg(ssize_t *p_ret, int sockfd, void *msg_buf,
-              unsigned int msg_buf_size, int flags);
-int
-ocall_recvmsg(ssize_t *p_ret, int sockfd, void *msg_buf,
-              unsigned int msg_buf_size, int flags);
-int
-ocall_shutdown(int *p_ret, int sockfd, int how);
-
-int
-ocall_fcntl_long(int *p_ret, int fd, int cmd, long arg);
-
-int
-ocall_setsockopt(int *p_ret, int sockfd, int level, int optname,
-                 void *optval, unsigned int optlen);
-
-int
 ocall_accept(int *p_ret, int sockfd, void *addr, uint32_t *addrlen,
                  uint32_t addr_size);
 
@@ -40,7 +18,20 @@ int
 ocall_bind(int *p_ret, int sockfd, const void *addr, uint32_t addrlen);
 
 int
+ocall_close(int *p_ret, int fd);
+
+int
+ocall_connect(int *p_ret, int sockfd, void *addr, uint32_t addrlen);
+
+int
+ocall_fcntl_long(int *p_ret, int fd, int cmd, long arg);
+
+int
 ocall_getsockname(int *p_ret, int sockfd, void *addr, uint32_t *addrlen, uint32_t addr_size);
+
+int
+ocall_getsockopt(int *p_ret, int sockfd, int level, int optname, void *val_buf,
+                 unsigned int val_buf_size, void *len_buf);
 
 int
 ocall_listen(int *p_ret, int sockfd, int backlog);
@@ -49,13 +40,25 @@ int
 ocall_recv(int *p_ret, int sockfd, void *buf, size_t len, int flags);
 
 int
+ocall_recvmsg(ssize_t *p_ret, int sockfd, void *msg_buf,
+              unsigned int msg_buf_size, int flags);
+
+int
 ocall_send(int *p_ret, int sockfd, const void *buf, size_t len, int flags);
 
 int
-ocall_connect(int *p_ret, int sockfd, void *addr, uint32_t addrlen);
+ocall_sendmsg(ssize_t *p_ret, int sockfd, void *msg_buf,
+              unsigned int msg_buf_size, int flags);
 
 int
-ocall_close(int *p_ret, int fd);
+ocall_setsockopt(int *p_ret, int sockfd, int level, int optname,
+                 void *optval, unsigned int optlen);
+
+int
+ocall_shutdown(int *p_ret, int sockfd, int how);
+
+int
+ocall_socket(int *p_ret, int domain, int type, int protocol);
 /** OCALLs prototypes end **/
 
 /** In-enclave implementation of POSIX functions **/
@@ -125,6 +128,12 @@ ntohs(uint16 value)
     return htons(value);
 }
 
+static int
+inet_network(const char *p)
+{
+	return ntohl(inet_addr(p));
+}
+
 /* Coming from musl, under MIT license */
 static int
 __inet_aton(const char *s0, struct in_addr *dest)
@@ -168,12 +177,6 @@ inet_addr(const char *p)
 	struct in_addr a;
 	if (!__inet_aton(p, &a)) return -1;
 	return a.s_addr;
-}
-
-static int
-inet_network(const char *p)
-{
-	return ntohl(inet_addr(p));
 }
 /** In-enclave implementation of POSIX functions end **/
 
