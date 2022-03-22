@@ -70,7 +70,7 @@ Refer to [socket api sample](../samples/socket-api) for more details.
 
 WAMR also supports the socket API within Intel SGX enclaves.
 
-The _iwasm_ should be compiled with `WAMR_BUILD_LIBC_WASI=1` (enabled by default) and `WAMR_BUILD_LIB_PTHREAD=1` (disabled by default).
+The _iwasm_ should be compiled with `WAMR_BUILD_LIBC_WASI=1` and `WAMR_BUILD_LIB_PTHREAD=1`, which are enabled by default.
 
 Similarly to running _iwasm_ outside of an enclave, the allowed address ranges are given via the option `--addr-pool`.
 
