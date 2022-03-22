@@ -65,6 +65,9 @@ ocall_send(int *p_ret, int sockfd, const void *buf, size_t len, int flags);
 int
 ocall_connect(int *p_ret, int sockfd, void *addr, uint32_t addrlen);
 
+int
+ocall_close(int *p_ret, int fd);
+
 static int
 textual_addr_to_sockaddr(const char *textual, int port, struct sockaddr_in *out)
 {
@@ -387,9 +390,17 @@ fail:
 int
 os_socket_close(bh_socket_t socket)
 {
-    os_printf("UniNE: os_socket_close is not implemented!\n");
-    errno = ENOSYS;
-    return -1;
+    int ret;
+
+    if (ocall_close(&ret, socket) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+    
+    if (ret == -1)
+        errno = get_errno();
+
+    return ret;
 }
 
 int
@@ -408,12 +419,10 @@ os_socket_connect(bh_socket_t socket, const char *addr, int port)
         return -1;
     }
     
-    if (ret == -1) {
+    if (ret == -1)
         errno = get_errno();
-        return BHT_ERROR;
-    }
 
-    return BHT_OK;
+    return ret;
 }
 
 int
@@ -468,12 +477,10 @@ os_socket_listen(bh_socket_t socket, int max_client)
         return -1;
     }
 
-    if (ret == -1) {
+    if (ret == -1)
         errno = get_errno();
-        return BHT_ERROR;
-    }
 
-    return BHT_OK;
+    return ret;
 }
 
 int
