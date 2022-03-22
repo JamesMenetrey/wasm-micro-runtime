@@ -139,8 +139,6 @@ enclave {
         int ocall_shutdown(int sockfd, int how);
         uint32_t ocall_inet_network([in, size=cp_size]const void *cp, int cp_size);
         uint32_t ocall_inet_addr([in, size=cp_size]const void *cp, int cp_size);
-        uint16_t ocall_htons(uint16_t hostshort);
-        uint16_t ocall_ntohs(uint16_t netshort);
         int ocall_bind(int sockfd, [in, size=addrlen]const void *addr,
                  uint32_t addrlen);
         int ocall_getsockname(int sockfd, [in, size=addr_size]void *addr,

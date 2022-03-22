@@ -95,18 +95,6 @@ ocall_setsockopt(int sockfd, int level, int optname,
     return setsockopt(sockfd, level, optname, optval, optlen);
 }
 
-uint16_t
-ocall_htons(uint16_t hostshort)
-{
-    return htons(hostshort);
-}
-
-uint16_t
-ocall_ntohs(uint16_t netshort)
-{
-    return ntohs(netshort);
-}
-
 int
 ocall_bind(int sockfd, const void *addr, uint32_t addrlen)
 {

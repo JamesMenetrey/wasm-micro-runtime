@@ -9,6 +9,7 @@
 
 #define TRACE_OCALL_FAIL() os_printf("ocall %s failed!\n", __FUNCTION__)
 
+/** OCALLs prototypes **/
 int
 ocall_socket(int *p_ret, int domain, int type, int protocol);
 int
@@ -41,12 +42,6 @@ int
 ocall_accept(int *p_ret, int sockfd, void *addr, uint32_t *addrlen,
                  uint32_t addr_size);
 
-uint16_t
-ocall_htons(uint16_t *p_ret, uint16_t hostshort);
-
-uint16_t
-ocall_ntohs(uint16_t *p_ret, uint16_t netshort);
-
 int
 ocall_bind(int *p_ret, int sockfd, const void *addr, uint32_t addrlen);
 
@@ -67,6 +62,44 @@ ocall_connect(int *p_ret, int sockfd, void *addr, uint32_t addrlen);
 
 int
 ocall_close(int *p_ret, int fd);
+/** OCALLs prototypes end **/
+
+/** In-enclave implementation of POSIX functions **/
+static bool
+is_little_endian()
+{
+    long i = 0x01020304;
+    unsigned char *c = (unsigned char *)&i;
+    return (*c == 0x04) ? true : false;
+}
+
+static void
+swap16(uint8 *pData)
+{
+    uint8 value = *pData;
+    *(pData) = *(pData + 1);
+    *(pData + 1) = value;
+}
+
+static uint16
+htons(uint16 value)
+{
+    uint16 ret;
+    if (is_little_endian()) {
+        ret = value;
+        swap16((uint8 *)&ret);
+        return ret;
+    }
+
+    return value;
+}
+
+static uint16
+ntohs(uint16 value)
+{
+    return htons(value);
+}
+/** In-enclave implementation of POSIX functions end **/
 
 static int
 textual_addr_to_sockaddr(const char *textual, int port, struct sockaddr_in *out)
@@ -74,11 +107,7 @@ textual_addr_to_sockaddr(const char *textual, int port, struct sockaddr_in *out)
     assert(textual);
 
     out->sin_family = AF_INET;
-
-    if (ocall_htons(&out->sin_port, port) != SGX_SUCCESS) {
-        TRACE_OCALL_FAIL();
-        return -1;
-    }
+    out->sin_port = htons(port);
 
     if (ocall_inet_addr(&out->sin_addr.s_addr, textual, strlen(textual) + 1) != SGX_SUCCESS) {
         TRACE_OCALL_FAIL();
@@ -348,11 +377,7 @@ os_socket_bind(bh_socket_t socket, const char *host, int *port)
         return -1;
     }
 
-    if (ocall_htons(&addr.sin_port, *port) != SGX_SUCCESS) {
-        TRACE_OCALL_FAIL();
-        return -1;
-    }
-
+    addr.sin_port = htons(*port);
     addr.sin_family = AF_INET;
 
     if (ocall_bind(&ret, socket, &addr, sizeof(addr)) != SGX_SUCCESS) {
@@ -375,10 +400,7 @@ os_socket_bind(bh_socket_t socket, const char *host, int *port)
         goto fail;
     }
 
-    if (ocall_ntohs((uint16_t*)port, addr.sin_port) != SGX_SUCCESS) {
-        TRACE_OCALL_FAIL();
-        return -1;
-    }
+    *port = ntohs(addr.sin_port);
 
     return BHT_OK;
 
