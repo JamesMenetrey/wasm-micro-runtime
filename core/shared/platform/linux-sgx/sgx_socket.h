@@ -70,6 +70,7 @@ struct in_addr
 {
     uint32_t s_addr;
 };
+typedef struct in_addr in_addr_t;
 
 /* Structure describing an Internet socket address.  */
 #define __SOCK_SIZE__ 16		/* sizeof(struct sockaddr)	*/
