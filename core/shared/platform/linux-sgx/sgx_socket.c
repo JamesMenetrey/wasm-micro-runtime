@@ -128,12 +128,6 @@ ntohs(uint16 value)
     return htons(value);
 }
 
-static int
-inet_network(const char *p)
-{
-	return ntohl(inet_addr(p));
-}
-
 /* Coming from musl, under MIT license */
 static int
 __inet_aton(const char *s0, struct in_addr *dest)
@@ -177,6 +171,12 @@ inet_addr(const char *p)
 	struct in_addr a;
 	if (!__inet_aton(p, &a)) return -1;
 	return a.s_addr;
+}
+
+static int
+inet_network(const char *p)
+{
+	return ntohl(inet_addr(p));
 }
 /** In-enclave implementation of POSIX functions end **/
 
