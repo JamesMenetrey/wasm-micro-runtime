@@ -52,8 +52,7 @@ extern "C" {
 #define IPPROTO_TCP 6 /* Transmission Control Protocol.  */
 
 /* Types of sockets.  */	
-#define SOCK_DGRAM 2 /* Connectionless, unreliable datagrams
-				   of fixed maximum length.  */
+#define SOCK_DGRAM 2 /* Connectionless, unreliable datagrams of fixed maximum length.  */
 
 struct msghdr {
     void *msg_name;
@@ -73,28 +72,28 @@ struct in_addr
 typedef struct in_addr in_addr_t;
 
 /* Structure describing an Internet socket address.  */
-#define __SOCK_SIZE__ 16		/* sizeof(struct sockaddr)	*/
+#define __SOCK_SIZE__ 16 /* sizeof(struct sockaddr)	*/
 struct sockaddr_in {
-    unsigned short int sin_family;
-    uint16_t sin_port;			/* Port number.  */
-    struct in_addr sin_addr;	/* Internet address.  */
+    uint16_t sin_family;
+    uint16_t sin_port; /* Port number.  */
+    struct in_addr sin_addr; /* Internet address.  */
 
     /* Pad to size of `struct sockaddr'. */
-    unsigned char__pad[__SOCK_SIZE__ - sizeof(short int) -
-			sizeof(unsigned short int) - sizeof(struct in_addr)];
+    unsigned char__pad[__SOCK_SIZE__ - sizeof(uint16_t) -
+			sizeof(uint16_t) - sizeof(struct in_addr)];
 };
 
 /* Structure used to manipulate the SO_LINGER option.  */
 struct linger {
-    int l_onoff;		/* Nonzero to linger on close.  */
-    int l_linger;		/* Time to linger.  */
+    int l_onoff; /* Nonzero to linger on close.  */
+    int l_linger; /* Time to linger.  */
 };
 
 /* Structure describing a generic socket address.  */
 struct sockaddr
   {
     unsigned short int sa_family; /* Common data: address family and length.  */
-    char sa_data[14];		/* Address data.  */
+    char sa_data[14]; /* Address data.  */
   };
 
 int
