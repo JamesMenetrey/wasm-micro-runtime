@@ -22,6 +22,10 @@
 #include "rights.h"
 #include "str.h"
 
+#if WAMR_SGX_IPFS
+#include "sgx_ipfs.h"
+#endif
+
 #if 0 /* TODO: -std=gnu99 causes compile error, comment them first */
 // struct iovec must have the same layout as __wasi_iovec_t.
 static_assert(offsetof(struct iovec, iov_base) ==
@@ -321,6 +325,9 @@ struct fd_object {
     struct refcount refcount;
     __wasi_filetype_t type;
     int number;
+#ifdef WAMR_SGX_IPFS
+    void* sgx_file;
+#endif
 
     union {
         // Data associated with directory file descriptors.
@@ -543,6 +550,16 @@ fd_number(const struct fd_object *fo)
     return number;
 }
 
+#ifdef WAMR_SGX_IPFS
+// Returns the underlying SGX Intel Protected File System pointer 
+// of a file descriptor object.
+static void*
+fd_sgx_file(const struct fd_object *fo)
+{
+    return fo->sgx_file;
+}
+#endif
+
 #define CLOSE_NON_STD_FD(fd) \
     do {                     \
         if (fd > 2)          \
@@ -567,6 +584,10 @@ fd_object_release(struct fd_object *fo) UNLOCKS(fo->refcount)
                     closedir(fo->directory.handle);
                 }
                 break;
+#if WAMR_SGX_IPFS
+            case __WASI_FILETYPE_REGULAR_FILE:
+                ipfs_close(fd_sgx_file(fo));
+#endif
             default:
                 CLOSE_NON_STD_FD(fd_number(fo));
                 break;
@@ -650,7 +671,11 @@ fd_table_insert(struct fd_table *ft, struct fd_object *fo,
 
 // Inserts a numerical file descriptor into the file descriptor table.
 static __wasi_errno_t
-fd_table_insert_fd(struct fd_table *ft, int in, __wasi_filetype_t type,
+fd_table_insert_fd(struct fd_table *ft, int in,
+#ifdef WAMR_SGX_IPFS
+                   void* sgx_file,
+#endif
+                   __wasi_filetype_t type,
                    __wasi_rights_t rights_base,
                    __wasi_rights_t rights_inheriting, __wasi_fd_t *out)
     REQUIRES_UNLOCKED(ft->lock)
@@ -659,11 +684,20 @@ fd_table_insert_fd(struct fd_table *ft, int in, __wasi_filetype_t type,
 
     __wasi_errno_t error = fd_object_new(type, &fo);
     if (error != 0) {
+#if WAMR_SGX_IPFS
+        if (type == __WASI_FILETYPE_REGULAR_FILE) {
+            ipfs_close(fd_sgx_file(fo));
+        }
+#endif
         close(in);
         return error;
     }
 
     fo->number = in;
+#if WAMR_SGX_IPFS
+    fo->sgx_file = sgx_file;
+#endif
+
     if (type == __WASI_FILETYPE_DIRECTORY) {
         if (!mutex_init(&fo->directory.lock)) {
             fd_object_release(fo);
@@ -815,7 +849,9 @@ wasmtime_ssp_fd_datasync(
     if (error != 0)
         return error;
 
-#if CONFIG_HAS_FDATASYNC
+#if WAMR_SGX_IPFS
+    int ret = ipfs_fflush(fd_sgx_file(fo));
+#elif CONFIG_HAS_FDATASYNC
     int ret = fdatasync(fd_number(fo));
 #else
     int ret = fsync(fd_number(fo));
@@ -843,7 +879,10 @@ wasmtime_ssp_fd_pread(
     if (error != 0)
         return error;
 
-#if CONFIG_HAS_PREADV
+#ifdef WAMR_SGX_IPFS
+    os_printf("Not implemented WASI function for SGX IPFS: 'fd_pread'.\n");
+    return __WASI_ECANCELED;
+#elif CONFIG_HAS_PREADV
     ssize_t len = preadv(fd_number(fo), (const struct iovec *)iov, (int)iovcnt,
                          (off_t)offset);
     fd_object_release(fo);
@@ -918,7 +957,10 @@ wasmtime_ssp_fd_pwrite(
         return error;
 
     ssize_t len;
-#if CONFIG_HAS_PWRITEV
+#ifdef WAMR_SGX_IPFS
+    os_printf("Not implemented WASI function for SGX IPFS: 'fd_pwrite'.\n");
+    return __WASI_ECANCELED;
+#elif CONFIG_HAS_PWRITEV
     len = pwritev(fd_number(fo), (const struct iovec *)iov, (int)iovcnt,
                   (off_t)offset);
 #else
@@ -967,7 +1009,12 @@ wasmtime_ssp_fd_read(
     if (error != 0)
         return error;
 
-    ssize_t len = readv(fd_number(fo), (const struct iovec *)iov, (int)iovcnt);
+    ssize_t len;
+#ifdef WAMR_SGX_IPFS
+    len = ipfs_readv(fd_sgx_file(fo), (const struct iovec *)iov, (int)iovcnt);
+#else
+    len = readv(fd_number(fo), (const struct iovec *)iov, (int)iovcnt);
+#endif
     fd_object_release(fo);
     if (len < 0)
         return convert_errno(errno);
@@ -1062,7 +1109,12 @@ wasmtime_ssp_fd_seek(
     if (error != 0)
         return error;
 
-    off_t ret = lseek(fd_number(fo), offset, nwhence);
+    off_t ret;
+#if WAMR_SGX_IPFS
+    ret = ipfs_fseek(fd_sgx_file(fo), offset, nwhence);
+#else
+    ret = lseek(fd_number(fo), offset, nwhence);
+#endif
     fd_object_release(fo);
     if (ret < 0)
         return convert_errno(errno);
@@ -1083,7 +1135,12 @@ wasmtime_ssp_fd_tell(
     if (error != 0)
         return error;
 
-    off_t ret = lseek(fd_number(fo), 0, SEEK_CUR);
+    off_t ret;
+#if WAMR_SGX_IPFS
+    ret = ipfs_ftell(fd_sgx_file(fo));
+#else
+    ret = lseek(fd_number(fo), 0, SEEK_CUR);
+#endif
     fd_object_release(fo);
     if (ret < 0)
         return convert_errno(errno);
@@ -1149,7 +1206,7 @@ wasmtime_ssp_fd_fdstat_set_flags(
     struct fd_table *curfds,
 #endif
     __wasi_fd_t fd, __wasi_fdflags_t fs_flags)
-{
+{    
     int noflags = 0;
     if ((fs_flags & __WASI_FDFLAG_APPEND) != 0)
         noflags |= O_APPEND;
@@ -1221,7 +1278,12 @@ wasmtime_ssp_fd_sync(
     if (error != 0)
         return error;
 
-    int ret = fsync(fd_number(fo));
+    int ret;
+#ifdef WAMR_SGX_IPFS
+    ret = ipfs_fflush(fd_sgx_file(fo));
+#else
+    ret = fsync(fd_number(fo));
+#endif
     fd_object_release(fo);
     if (ret < 0)
         return convert_errno(errno);
@@ -1241,7 +1303,7 @@ wasmtime_ssp_fd_write(
     if (error != 0)
         return error;
 
-#ifndef BH_VPRINTF
+#if !defined(BH_VPRINTF) && !defined(WAMR_SGX_IPFS)
     ssize_t len = writev(fd_number(fo), (const struct iovec *)iov, (int)iovcnt);
 #else
     ssize_t len = 0;
@@ -1261,9 +1323,13 @@ wasmtime_ssp_fd_write(
         }
     }
     else {
+#ifdef WAMR_SGX_IPFS
+        len = ipfs_writev(fd_sgx_file(fo), (const struct iovec *)iov, (int)iovcnt);
+#else
         len = writev(fd_number(fo), (const struct iovec *)iov, (int)iovcnt);
+#endif /* end of WAMR_SGX_IPFS */
     }
-#endif /* end of BH_VPRINTF */
+#endif /* end of !defined(BH_VPRINTF) && !defined(WAMR_SGX_IPFS) */
     fd_object_release(fo);
     if (len < 0)
         return convert_errno(errno);
@@ -1347,6 +1413,11 @@ wasmtime_ssp_fd_allocate(
 #endif
     __wasi_fd_t fd, __wasi_filesize_t offset, __wasi_filesize_t len)
 {
+#ifdef WAMR_SGX_IPFS
+    os_printf("Not implemented WASI function for SGX IPFS: 'fd_allocate'.\n");
+    return __WASI_ECANCELED;
+#endif
+
     struct fd_object *fo;
     __wasi_errno_t error =
         fd_object_get(curfds, &fo, fd, __WASI_RIGHT_FD_ALLOCATE, 0);
@@ -1924,7 +1995,26 @@ wasmtime_ssp_path_open(
             rights_base |= (__wasi_rights_t)RIGHTS_REGULAR_FILE_BASE;
     }
 
-    return fd_table_insert_fd(curfds, nfd, type, rights_base & max_base,
+#if WAMR_SGX_IPFS
+    void* file_ptr = NULL;
+    if (type == __WASI_FILETYPE_REGULAR_FILE) {
+        // When WAMR uses Intel SGX IPFS to enabled, it opens a second
+        // file descriptor to interact with the secure file.
+        // The first fild descriptor opened earlier is used to interact
+        // with the metadata of the file (e.g., time, flags, etc.).
+        file_ptr = ipfs_fopen(path, fs_rights_base, oflags, fs_flags);
+        if (file_ptr == NULL) {
+            close(nfd);
+            return convert_errno(errno);
+        }
+    }
+#endif
+
+    return fd_table_insert_fd(curfds, nfd, 
+#ifdef WAMR_SGX_IPFS
+                              file_ptr,
+#endif
+                              type, rights_base & max_base,
                               rights_inheriting & max_inheriting, fd);
 }
 
@@ -2195,6 +2285,11 @@ wasmtime_ssp_fd_filestat_set_size(
 #endif
     __wasi_fd_t fd, __wasi_filesize_t st_size)
 {
+#ifdef WAMR_SGX_IPFS
+    os_printf("Not implemented WASI function for SGX IPFS: 'fd_filestat_set_size'.\n");
+    return __WASI_ECANCELED;
+#endif
+
     struct fd_object *fo;
     __wasi_errno_t error =
         fd_object_get(curfds, &fo, fd, __WASI_RIGHT_FD_FILESTAT_SET_SIZE, 0);
@@ -2830,7 +2925,11 @@ wasi_ssp_sock_accept(
         goto fail;
     }
 
-    error = fd_table_insert_fd(curfds, new_sock, wasi_type, max_base,
+    error = fd_table_insert_fd(curfds, new_sock,
+#ifdef WAMR_SGX_IPFS
+                               NULL,
+#endif
+                               wasi_type, max_base,
                                max_inheriting, fd_new);
     if (error != __WASI_ESUCCESS) {
         /* released in fd_table_insert_fd() */
@@ -3014,7 +3113,11 @@ wasi_ssp_sock_open(
     }
 
     // TODO: base rights and inheriting rights ?
-    error = fd_table_insert_fd(curfds, sock, wasi_type, max_base,
+    error = fd_table_insert_fd(curfds, sock,
+#ifdef WAMR_SGX_IPFS
+                               NULL,
+#endif
+                               wasi_type, max_base,
                                max_inheriting, sockfd);
     if (error != __WASI_ESUCCESS) {
         return error;

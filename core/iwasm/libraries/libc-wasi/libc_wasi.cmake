@@ -6,7 +6,8 @@ set (LIBC_WASI_DIR ${CMAKE_CURRENT_LIST_DIR})
 add_definitions (-DWASM_ENABLE_LIBC_WASI=1)
 
 include_directories(${LIBC_WASI_DIR}/sandboxed-system-primitives/include
-                    ${LIBC_WASI_DIR}/sandboxed-system-primitives/src)
+                    ${LIBC_WASI_DIR}/sandboxed-system-primitives/src
+                    ${LIBC_WASI_DIR}/sgx/include)
 
 file (GLOB_RECURSE source_all ${LIBC_WASI_DIR}/*.c )
 
