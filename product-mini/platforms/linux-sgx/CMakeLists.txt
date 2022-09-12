@@ -122,3 +122,15 @@ else()
         OUTPUT_VARIABLE cmdOutput
     )
 endif()
+
+if (WAMR_SGX_IPFS EQUAL 1)
+    execute_process(
+        COMMAND bash -c "sed -i -E 's/^#define SGX_IPFS 0 /#define SGX_IPFS 1/g' ${CMAKE_CURRENT_SOURCE_DIR}/enclave-sample/Enclave/Enclave.edl"
+        OUTPUT_VARIABLE cmdOutput
+    )
+else()
+    execute_process(
+        COMMAND bash -c "sed -i -E 's/^#define SGX_IPFS 1/#define SGX_IPFS 0/g' ${CMAKE_CURRENT_SOURCE_DIR}/enclave-sample/Enclave/Enclave.edl"
+        OUTPUT_VARIABLE cmdOutput
+    )
+endif()

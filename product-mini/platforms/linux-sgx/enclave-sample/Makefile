@@ -98,8 +98,6 @@ App_Cpp_Objects := $(App_Cpp_Files:.cpp=.o)
 
 App_Name := iwasm
 
-Enclave_Edl_File_Name := Enclave.edl
-
 ######## Enclave Settings ########
 
 ifneq ($(SGX_MODE), HW)
@@ -113,7 +111,6 @@ endif
 ifeq ($(SGX_IPFS), 1)
 	Intel_Ipfs_Trusted_Flag = -lsgx_tprotected_fs
 	App_Link_Flags += -lsgx_uprotected_fs
-	Enclave_Edl_File_Name = Enclave_ipfs.edl
 endif
 
 Crypto_Library_Name := sgx_tcrypto
@@ -205,9 +202,6 @@ ifeq ($(LIB_RATS), 1)
 	@echo "librats build success"
 endif
 
-Enclave/Enclave.edl:
-	@cp Enclave/edl/$(Enclave_Edl_File_Name) Enclave/Enclave.edl
-
 App/Enclave_u.c: $(SGX_EDGER8R) Enclave/Enclave.edl librats
 	@cd App && $(SGX_EDGER8R) --untrusted ../Enclave/Enclave.edl $(Enclave_Edl_Search_Path)
 	@echo "GEN  =>  $@"
@@ -230,7 +224,6 @@ $(App_Name): App/Enclave_u.o $(App_Cpp_Objects) libvmlib_untrusted.a
 
 
 ######## Enclave Objects ########
-
 Enclave/Enclave_t.c: $(SGX_EDGER8R) Enclave/Enclave.edl librats
 	@cd Enclave && $(SGX_EDGER8R) --trusted ../Enclave/Enclave.edl $(Enclave_Edl_Search_Path)
 	@echo "GEN  =>  $@"
