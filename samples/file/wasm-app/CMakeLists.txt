@@ -14,6 +14,7 @@ endif ()
 
 set (CMAKE_C_COMPILER_TARGET        "wasm32-wasi")
 set (CMAKE_C_COMPILER               "${WASI_SDK_DIR}/bin/clang")
+set (CMAKE_C_FLAGS                  "${CMAKE_C_FLAGS} -O3 -Wno-unused-command-line-argument")
 
 add_executable(file.wasm main.c)
 target_link_libraries(file.wasm)

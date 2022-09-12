@@ -314,21 +314,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        make_options: [
-            # Running mode
-            $CLASSIC_INTERP_BUILD_OPTIONS,
-            $FAST_INTERP_BUILD_OPTIONS,
-            # doesn't support
-            #$LAZY_JIT_BUILD_OPTIONS,
-            #$MC_JIT_BUILD_OPTIONS,
-            #$AOT_BUILD_OPTIONS,
-          ]
-        make_options_feature: [
-            # Features
-            "-DWAMR_SGX_IPFS=0",
-            "-DWAMR_SGX_IPFS=1",
-          ]
-        os: [ubuntu-20.04]
         include:
           - os: ubuntu-20.04
             light: ${{ needs.check_repo.outputs.traffic_light_on_ubuntu_2004 }}
@@ -384,7 +369,7 @@ jobs:
         run: |
           cd samples/multi-thread
           mkdir build && cd build
-          cmake .. ${{ matrix.make_options_run_mode }} ${{ matrix.make_options_feature }}
+          cmake ..
           cmake --build . --config Release --parallel 4
           ./iwasm wasm-apps/test.wasm
 
@@ -393,7 +378,7 @@ jobs:
         run: |
           cd samples/multi-module
           mkdir build && cd build
-          cmake .. ${{ matrix.make_options_run_mode }} ${{ matrix.make_options_feature }}
+          cmake ..
           cmake --build . --config Release --parallel 4
           ./multi_module
 
@@ -402,7 +387,7 @@ jobs:
         run: |
           cd samples/spawn-thread
           mkdir build && cd build
-          cmake .. ${{ matrix.make_options_run_mode }} ${{ matrix.make_options_feature }}
+          cmake ..
           cmake --build . --config Release --parallel 4
           ./spawn_thread
 
@@ -411,18 +396,9 @@ jobs:
         run: |
           cd samples/ref-types
           mkdir build && cd build
-          cmake .. ${{ matrix.make_options_run_mode }} ${{ matrix.make_options_feature }}
+          cmake ..
           cmake --build . --config Release --parallel 4
           ./hello
-
-      - name: Build Sample [file]
-        if: ${{ matrix.light == 'green' }}
-        run: |
-          cd samples/file
-          mkdir build && cd build
-          cmake .. ${{ matrix.make_options_run_mode }} ${{ matrix.make_options_feature }}
-          cmake --build . --config Release --parallel 4
-          ./iwasm wasm-app/file.wasm
 
   spec_test_default:
     needs: [build_iwasm, build_llvm_libraries, build_wamrc, check_repo]
