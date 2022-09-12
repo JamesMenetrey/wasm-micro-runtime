@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -48,20 +49,25 @@ main(int argc, char **argv)
     printf("Force actual write of all the cached data to the disk..\n");
     fflush(file);
 
-    printf("file current offset: %ld\n", ftell(file));
+    printf("File current offset: %ld\n", ftell(file));
     off_t world_offset = ftell(file) - 6;
 
     printf("Writing 5 characters at offset %lld..\n", world_offset);
     pwrite(fileno(file), "James", 5, world_offset);
 
-    printf("file current offset: %ld\n", ftell(file));
+    printf("File current offset: %ld\n", ftell(file));
 
     printf("Reading 5 characters at offset %lld..\n", world_offset);
     buffer[5] = '\0';
     pread(fileno(file), buffer, 5, world_offset);
     printf("Text read: %s\n", buffer);
 
-    printf("file current offset: %ld\n", ftell(file));
+    printf("File current offset: %ld\n", ftell(file));
+
+    printf("Allocate more space to the file..\n");
+    posix_fallocate(fileno(file), ftell(file) - 2, 10);
+
+    printf("File current offset: %ld\n", ftell(file));
 
     printf("Closing from the file..\n");
     fclose(file);

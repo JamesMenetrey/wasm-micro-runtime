@@ -56,6 +56,21 @@ convert_sgx_errno(int error) {
     return error;
 }
 
+int ipfs_posix_fallocate(void* sgx_file, off_t offset, size_t len)
+{
+    // The wrapper for fseek takes care of extending the file if sought beyond the end
+    if (ipfs_lseek(sgx_file, offset + len, SEEK_CUR) == -1) {
+         return errno;
+    }
+
+    // Make sure the file is allocated by flushing it
+    if (sgx_fflush(sgx_file) != 0) {
+        return errno;
+    }
+
+    return 0;
+}
+
 size_t
 ipfs_readv(void* sgx_file, const struct iovec *iov, int iovcnt)
 {

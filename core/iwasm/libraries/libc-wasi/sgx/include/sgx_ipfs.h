@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+int ipfs_posix_fallocate(void* sgx_file, off_t offset, size_t len);
 size_t ipfs_readv(void* sgx_file, const struct iovec *iov, int iovcnt);
 size_t ipfs_pread(void* sgx_file, void* buffer, size_t size, off_t offset);
 size_t ipfs_writev(void* sgx_file, const struct iovec *iov, int iovcnt);

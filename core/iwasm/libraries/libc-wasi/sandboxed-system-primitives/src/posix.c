@@ -1423,18 +1423,15 @@ wasmtime_ssp_fd_allocate(
 #endif
     __wasi_fd_t fd, __wasi_filesize_t offset, __wasi_filesize_t len)
 {
-#ifdef WAMR_SGX_IPFS
-    os_printf("Not implemented WASI function for SGX IPFS: 'fd_allocate'.\n");
-    return __WASI_ECANCELED;
-#endif
-
     struct fd_object *fo;
     __wasi_errno_t error =
         fd_object_get(curfds, &fo, fd, __WASI_RIGHT_FD_ALLOCATE, 0);
     if (error != 0)
         return error;
 
-#if CONFIG_HAS_POSIX_FALLOCATE
+#ifdef WAMR_SGX_IPFS
+    int ret = ipfs_posix_fallocate(fd_sgx_file(fo), (off_t)offset, (off_t)len);
+#elif CONFIG_HAS_POSIX_FALLOCATE
     int ret = posix_fallocate(fd_number(fo), (off_t)offset, (off_t)len);
 #else
     // At least ensure that the file is grown to the right size.
