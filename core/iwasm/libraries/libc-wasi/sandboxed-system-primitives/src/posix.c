@@ -1121,7 +1121,7 @@ wasmtime_ssp_fd_seek(
 
     off_t ret;
 #if WAMR_SGX_IPFS
-    ret = ipfs_fseek(fd_sgx_file(fo), offset, nwhence);
+    ret = ipfs_lseek(fd_sgx_file(fo), offset, nwhence);
 #else
     ret = lseek(fd_number(fo), offset, nwhence);
 #endif

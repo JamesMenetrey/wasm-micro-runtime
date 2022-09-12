@@ -247,7 +247,7 @@ ipfs_fflush(void* sgx_file)
 }
 
 off_t
-ipfs_fseek(void* sgx_file, off_t offset, int nwhence)
+ipfs_lseek(void* sgx_file, off_t offset, int nwhence)
 {
     off_t new_offset;
     int fseek_result = sgx_fseek(sgx_file, offset, nwhence);
