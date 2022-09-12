@@ -78,6 +78,40 @@ ipfs_readv(void* sgx_file, const struct iovec *iov, int iovcnt)
     }
 
     return number_of_read_bytes;
+} 
+
+// Emulates pread using sgx_read.
+size_t
+ipfs_pread(void* sgx_file, void* buffer, size_t size, off_t offset)
+{
+    // Save the current offset, to restore it after the read operation
+    off_t original_offset = (off_t)sgx_ftell(sgx_file);
+    
+    if (original_offset == -1) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    // Move to the desired location
+    if (sgx_fseek(sgx_file, offset, SEEK_SET) == -1) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    // Store the content of into buffer
+    size_t bytes_read = sgx_fread(buffer, 1, size, sgx_file);
+    if (bytes_read == 0) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    // Restore the position of the cursor
+    if (sgx_fseek(sgx_file, original_offset, SEEK_SET) == -1) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    return bytes_read;
 }
 
 size_t
@@ -100,6 +134,40 @@ ipfs_writev(void* sgx_file, const struct iovec *iov, int iovcnt)
     }
 
     return number_of_written_bytes;
+}
+
+// Emulates pwrite using sgx_write.
+size_t
+ipfs_pwrite(void* sgx_file, const void* buffer, size_t size, off_t offset)
+{
+    // Save the current offset, to restore it after the read operation
+    off_t original_offset = (off_t)sgx_ftell(sgx_file);
+    
+    if (original_offset == -1) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    // Move to the desired location
+    if (sgx_fseek(sgx_file, offset, SEEK_SET) == -1) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    // Write the content of the buffer
+    size_t bytes_written = sgx_fwrite(buffer, 1, size, sgx_file);
+    if (bytes_written == 0) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    // Restore the position of the cursor
+    if (sgx_fseek(sgx_file, original_offset, SEEK_SET) == -1) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    return bytes_written;
 }
 
 int

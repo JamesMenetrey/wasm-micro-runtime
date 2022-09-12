@@ -13,7 +13,9 @@ extern "C" {
 #endif
 
 size_t ipfs_readv(void* sgx_file, const struct iovec *iov, int iovcnt);
+size_t ipfs_pread(void* sgx_file, void* buffer, size_t size, off_t offset);
 size_t ipfs_writev(void* sgx_file, const struct iovec *iov, int iovcnt);
+size_t ipfs_pwrite(void* sgx_file, const void* buffer, size_t size, off_t offset);
 int ipfs_close(void* sgx_file);
 void* ipfs_fopen(const char* filename, __wasi_rights_t fs_rights_base,
                  __wasi_oflags_t oflags, __wasi_fdflags_t fs_flags);

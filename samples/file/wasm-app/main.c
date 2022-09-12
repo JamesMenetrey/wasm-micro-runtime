@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #define PATH_TEST_FILE "test.txt"
 
@@ -18,7 +19,7 @@ main(int argc, char **argv)
     char buffer[1000];
 
     printf("Opening a file..\n");
-    file = fopen(PATH_TEST_FILE,"a+");
+    file = fopen(PATH_TEST_FILE,"w+");
     if(file == NULL)
     {
         printf("Error! errno: %d\n", errno);   
@@ -46,6 +47,21 @@ main(int argc, char **argv)
 
     printf("Force actual write of all the cached data to the disk..\n");
     fflush(file);
+
+    printf("file current offset: %ld\n", ftell(file));
+    off_t world_offset = ftell(file) - 6;
+
+    printf("Writing 5 characters at offset %lld..\n", world_offset);
+    pwrite(fileno(file), "James", 5, world_offset);
+
+    printf("file current offset: %ld\n", ftell(file));
+
+    printf("Reading 5 characters at offset %lld..\n", world_offset);
+    buffer[5] = '\0';
+    pread(fileno(file), buffer, 5, world_offset);
+    printf("Text read: %s\n", buffer);
+
+    printf("file current offset: %ld\n", ftell(file));
 
     printf("Closing from the file..\n");
     fclose(file);

@@ -879,10 +879,7 @@ wasmtime_ssp_fd_pread(
     if (error != 0)
         return error;
 
-#ifdef WAMR_SGX_IPFS
-    os_printf("Not implemented WASI function for SGX IPFS: 'fd_pread'.\n");
-    return __WASI_ECANCELED;
-#elif CONFIG_HAS_PREADV
+#if CONFIG_HAS_PREADV && !defined(WAMR_SGX_IPFS)
     ssize_t len = preadv(fd_number(fo), (const struct iovec *)iov, (int)iovcnt,
                          (off_t)offset);
     fd_object_release(fo);
@@ -892,7 +889,11 @@ wasmtime_ssp_fd_pread(
     return 0;
 #else
     if (iovcnt == 1) {
+#ifdef WAMR_SGX_IPFS
+        ssize_t len = ipfs_pread(fd_sgx_file(fo), iov->buf, iov->buf_len, offset);
+#else
         ssize_t len = pread(fd_number(fo), iov->buf, iov->buf_len, offset);
+#endif
         fd_object_release(fo);
         if (len < 0)
             return convert_errno(errno);
@@ -911,7 +912,11 @@ wasmtime_ssp_fd_pread(
         }
 
         // Perform a single read operation.
+#ifdef WAMR_SGX_IPFS
+        ssize_t len = ipfs_pread(fd_sgx_file(fo), buf, totalsize, offset);
+#else
         ssize_t len = pread(fd_number(fo), buf, totalsize, offset);
+#endif
         fd_object_release(fo);
         if (len < 0) {
             wasm_runtime_free(buf);
@@ -957,15 +962,16 @@ wasmtime_ssp_fd_pwrite(
         return error;
 
     ssize_t len;
-#ifdef WAMR_SGX_IPFS
-    os_printf("Not implemented WASI function for SGX IPFS: 'fd_pwrite'.\n");
-    return __WASI_ECANCELED;
-#elif CONFIG_HAS_PWRITEV
+#if CONFIG_HAS_PWRITEV && !defined(WAMR_SGX_IPFS)
     len = pwritev(fd_number(fo), (const struct iovec *)iov, (int)iovcnt,
                   (off_t)offset);
 #else
     if (iovcnt == 1) {
+#ifdef WAMR_SGX_IPFS
+        len = ipfs_pwrite(fd_sgx_file(fo), iov->buf, iov->buf_len, offset);
+#else
         len = pwrite(fd_number(fo), iov->buf, iov->buf_len, offset);
+#endif
     }
     else {
         // Allocate a single buffer to fit all data.
@@ -985,7 +991,11 @@ wasmtime_ssp_fd_pwrite(
         }
 
         // Perform a single write operation.
+#ifdef WAMR_SGX_IPFS
+        len = ipfs_pwrite(fd_sgx_file(fo), buf, totalsize, offset);
+#else
         len = pwrite(fd_number(fo), buf, totalsize, offset);
+#endif
         wasm_runtime_free(buf);
     }
 #endif
