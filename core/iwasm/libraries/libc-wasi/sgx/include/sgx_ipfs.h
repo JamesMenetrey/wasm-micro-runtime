@@ -23,6 +23,7 @@ void* ipfs_fopen(const char* filename, __wasi_rights_t fs_rights_base,
 int ipfs_fflush(void* sgx_file);
 off_t ipfs_lseek(void* sgx_file, off_t offset, int nwhence);
 off_t ipfs_ftell(void* sgx_file);
+int ipfs_ftruncate(void* sgx_file, off_t len);
 
 
 #ifdef __cplusplus

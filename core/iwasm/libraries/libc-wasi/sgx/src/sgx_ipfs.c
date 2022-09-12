@@ -329,4 +329,50 @@ ipfs_ftell(void* sgx_file)
     return ftell_result;
 }
 
+// Emulates ftruncate with IPFS. The official API does not provide a way
+// to truncate files. Only files extension is supported.
+int
+ipfs_ftruncate(void* sgx_file, off_t len)
+{
+    off_t original_offset = sgx_ftell(sgx_file);
+
+    // Optimization path: if the length is smaller than the offset,
+    // IPFS does not support truncate to a smaller size.
+    if (len < original_offset) {
+        os_printf("SGX IPFS does not support truncate files to smaller sizes.\n");
+        return __WASI_ECANCELED;
+    }
+
+    // Move to the end of the file to determine whether this is
+    // a file extension or reduction.
+    if (sgx_fseek(sgx_file, 0, SEEK_END) == -1) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    off_t file_size = sgx_ftell(sgx_file);
+
+    // Reducing the file space is not supported by IPFS.
+    if (len < file_size) {
+        os_printf("SGX IPFS does not support truncate files to smaller sizes.\n");
+        return __WASI_ECANCELED;
+    }
+
+    // Increasing the size is equal to writing from the end of the file 
+    // with null bytes.
+    char null_byte = 0;
+    if (sgx_fwrite(&null_byte, 1, len - file_size, sgx_file) == 0) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    // Restore the position of the cursor
+    if (sgx_fseek(sgx_file, original_offset, SEEK_SET) == -1) {
+        errno = convert_sgx_errno(sgx_ferror(sgx_file));
+        return -1;
+    }
+
+    return 0;
+}
+
 #endif /* end of WAMR_SGX_IPFS */

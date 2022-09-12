@@ -69,6 +69,16 @@ main(int argc, char **argv)
 
     printf("File current offset: %ld\n", ftell(file));
 
+    printf("Extend the file size of 10 bytes using ftruncate..\n");
+    ftruncate(fileno(file), ftell(file) + 10);
+
+    printf("File current offset: %ld\n", ftell(file));
+
+    printf("Moving to the end of the file..\n");
+    fseek(file, 0, SEEK_END);
+
+    printf("File current offset: %ld\n", ftell(file));
+
     printf("Closing from the file..\n");
     fclose(file);
 

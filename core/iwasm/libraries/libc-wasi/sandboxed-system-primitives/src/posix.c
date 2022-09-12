@@ -2292,18 +2292,17 @@ wasmtime_ssp_fd_filestat_set_size(
 #endif
     __wasi_fd_t fd, __wasi_filesize_t st_size)
 {
-#ifdef WAMR_SGX_IPFS
-    os_printf("Not implemented WASI function for SGX IPFS: 'fd_filestat_set_size'.\n");
-    return __WASI_ECANCELED;
-#endif
-
     struct fd_object *fo;
     __wasi_errno_t error =
         fd_object_get(curfds, &fo, fd, __WASI_RIGHT_FD_FILESTAT_SET_SIZE, 0);
     if (error != 0)
         return error;
 
+#ifdef WAMR_SGX_IPFS
+    int ret = ipfs_ftruncate(fd_sgx_file(fo), (off_t)st_size);
+#else
     int ret = ftruncate(fd_number(fo), (off_t)st_size);
+#endif
     fd_object_release(fo);
     if (ret < 0)
         return convert_errno(errno);
