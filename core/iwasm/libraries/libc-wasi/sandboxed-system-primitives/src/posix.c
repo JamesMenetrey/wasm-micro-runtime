@@ -326,7 +326,7 @@ struct fd_object {
     __wasi_filetype_t type;
     int number;
 #ifdef WAMR_SGX_IPFS
-    void* sgx_file;
+    void *sgx_file;
 #endif
 
     union {
@@ -551,9 +551,9 @@ fd_number(const struct fd_object *fo)
 }
 
 #ifdef WAMR_SGX_IPFS
-// Returns the underlying SGX Intel Protected File System pointer 
+// Returns the underlying SGX Intel Protected File System pointer
 // of a file descriptor object.
-static void*
+static void *
 fd_sgx_file(const struct fd_object *fo)
 {
     return fo->sgx_file;
@@ -673,10 +673,9 @@ fd_table_insert(struct fd_table *ft, struct fd_object *fo,
 static __wasi_errno_t
 fd_table_insert_fd(struct fd_table *ft, int in,
 #ifdef WAMR_SGX_IPFS
-                   void* sgx_file,
+                   void *sgx_file,
 #endif
-                   __wasi_filetype_t type,
-                   __wasi_rights_t rights_base,
+                   __wasi_filetype_t type, __wasi_rights_t rights_base,
                    __wasi_rights_t rights_inheriting, __wasi_fd_t *out)
     REQUIRES_UNLOCKED(ft->lock)
 {
@@ -890,7 +889,8 @@ wasmtime_ssp_fd_pread(
 #else
     if (iovcnt == 1) {
 #ifdef WAMR_SGX_IPFS
-        ssize_t len = ipfs_pread(fd_sgx_file(fo), iov->buf, iov->buf_len, offset);
+        ssize_t len =
+            ipfs_pread(fd_sgx_file(fo), iov->buf, iov->buf_len, offset);
 #else
         ssize_t len = pread(fd_number(fo), iov->buf, iov->buf_len, offset);
 #endif
@@ -1216,7 +1216,7 @@ wasmtime_ssp_fd_fdstat_set_flags(
     struct fd_table *curfds,
 #endif
     __wasi_fd_t fd, __wasi_fdflags_t fs_flags)
-{    
+{
     int noflags = 0;
     if ((fs_flags & __WASI_FDFLAG_APPEND) != 0)
         noflags |= O_APPEND;
@@ -1334,7 +1334,8 @@ wasmtime_ssp_fd_write(
     }
     else {
 #ifdef WAMR_SGX_IPFS
-        len = ipfs_writev(fd_sgx_file(fo), (const struct iovec *)iov, (int)iovcnt);
+        len = ipfs_writev(fd_sgx_file(fo), (const struct iovec *)iov,
+                          (int)iovcnt);
 #else
         len = writev(fd_number(fo), (const struct iovec *)iov, (int)iovcnt);
 #endif /* end of WAMR_SGX_IPFS */
@@ -2003,7 +2004,7 @@ wasmtime_ssp_path_open(
     }
 
 #if WAMR_SGX_IPFS
-    void* file_ptr = NULL;
+    void *file_ptr = NULL;
     if (type == __WASI_FILETYPE_REGULAR_FILE) {
         // When WAMR uses Intel SGX IPFS to enabled, it opens a second
         // file descriptor to interact with the secure file.
@@ -2017,7 +2018,7 @@ wasmtime_ssp_path_open(
     }
 #endif
 
-    return fd_table_insert_fd(curfds, nfd, 
+    return fd_table_insert_fd(curfds, nfd,
 #ifdef WAMR_SGX_IPFS
                               file_ptr,
 #endif
@@ -2935,8 +2936,7 @@ wasi_ssp_sock_accept(
 #ifdef WAMR_SGX_IPFS
                                NULL,
 #endif
-                               wasi_type, max_base,
-                               max_inheriting, fd_new);
+                               wasi_type, max_base, max_inheriting, fd_new);
     if (error != __WASI_ESUCCESS) {
         /* released in fd_table_insert_fd() */
         new_sock = -1;
@@ -3123,8 +3123,7 @@ wasi_ssp_sock_open(
 #ifdef WAMR_SGX_IPFS
                                NULL,
 #endif
-                               wasi_type, max_base,
-                               max_inheriting, sockfd);
+                               wasi_type, max_base, max_inheriting, sockfd);
     if (error != __WASI_ESUCCESS) {
         return error;
     }

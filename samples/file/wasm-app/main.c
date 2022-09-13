@@ -12,18 +12,18 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define PATH_TEST_FILE      "test.txt"
-#define FILE_TEXT           "Hello, world!"
-#define WORLD_OFFSET        7
-#define NAME_REPLACMENT     "James"
+#define PATH_TEST_FILE "test.txt"
+#define FILE_TEXT "Hello, world!"
+#define WORLD_OFFSET 7
+#define NAME_REPLACMENT "James"
 #define NAME_REPLACMENT_LEN (sizeof(NAME_REPLACMENT) - 1)
-#define ADDITIONAL_SPACE    10
+#define ADDITIONAL_SPACE 10
 
 int
 main(int argc, char **argv)
 {
     FILE *file;
-    const char* text = FILE_TEXT;
+    const char *text = FILE_TEXT;
     char buffer[1000];
     int ret;
 
@@ -31,10 +31,10 @@ main(int argc, char **argv)
     printf("Opening a file..\n");
     file = fopen(PATH_TEST_FILE, "w+");
     if (file == NULL) {
-        printf("Error! errno: %d\n", errno);           
+        printf("Error! errno: %d\n", errno);
     }
     assert(file != NULL);
-    printf ("[Test] File opening passed.\n");
+    printf("[Test] File opening passed.\n");
 
     // Test: Writing to a file (fprintf)
     printf("Writing to the file..\n");
@@ -46,7 +46,7 @@ main(int argc, char **argv)
     printf("Moving the cursor to the start of the file..\n");
     ret = fseek(file, 0, SEEK_SET);
     assert(ret == 0);
-    
+
     printf("Reading from the file, up to 1000 characters..\n");
     fread(buffer, 1, sizeof(buffer), file);
     printf("Text read: %s\n", buffer);
@@ -75,14 +75,16 @@ main(int argc, char **argv)
 
     // Test: writing at specified offset (pwrite)
     printf("Writing 5 characters at offset %d..\n", WORLD_OFFSET);
-    ret = pwrite(fileno(file), NAME_REPLACMENT, NAME_REPLACMENT_LEN, WORLD_OFFSET);
+    ret = pwrite(fileno(file), NAME_REPLACMENT, NAME_REPLACMENT_LEN,
+                 WORLD_OFFSET);
     printf("File current offset: %ld\n", ftell(file));
     assert(ret == NAME_REPLACMENT_LEN);
     assert(ftell(file) == strlen(FILE_TEXT));
     printf("[Test] Writing at specified offset passed.\n");
 
     // Test: reading at specified offset (pread)
-    printf("Reading %ld characters at offset %d..\n", NAME_REPLACMENT_LEN, WORLD_OFFSET);
+    printf("Reading %ld characters at offset %d..\n", NAME_REPLACMENT_LEN,
+           WORLD_OFFSET);
     buffer[NAME_REPLACMENT_LEN] = '\0';
     pread(fileno(file), buffer, NAME_REPLACMENT_LEN, WORLD_OFFSET);
     printf("Text read: %s\n", buffer);
