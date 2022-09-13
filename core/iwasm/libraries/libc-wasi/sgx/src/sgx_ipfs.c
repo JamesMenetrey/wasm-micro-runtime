@@ -220,13 +220,7 @@ ipfs_fopen(const char* filename, __wasi_rights_t fs_rights_base,
     else if (write_only && must_create && must_append) mode = "a";
     else if (read_write && must_create && must_truncate) mode = "w+";
     else if (read_write && must_create && must_append) mode = "a+";
-    else if (read_write && must_create) {
-        // No open mode for that use case. Simulate it.
-        struct stat stat_st;
-        int file_exists = stat(filename, &stat_st) == 0;
-        if (file_exists) mode = "r+";
-        else mode = "w+";
-    }
+    else if (read_write && must_create) mode = "w+";
     else if (read_write) mode = "r+";
     else mode = NULL;
     
