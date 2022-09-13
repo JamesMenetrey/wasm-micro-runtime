@@ -85,7 +85,7 @@ if (NOT DEFINED WAMR_BUILD_SIMD)
 endif ()
 
 if (NOT DEFINED WAMR_SGX_IPFS)
-  # Disable SIMD by default
+  # Disable SGX IPFS by default
   set (WAMR_SGX_IPFS 0)
 endif ()
 
