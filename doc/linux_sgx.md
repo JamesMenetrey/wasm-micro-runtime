@@ -197,23 +197,23 @@ typedef enum EcallCmd {
 
 SGX Intel Protected File System
 -------------------------------
-Intel SGX introduced a feature called [Intel Protection File System Library (IPFS)](https://www.intel.com/content/www/us/en/developer/articles/technical/overview-of-intel-protected-file-system-library-using-software-guard-extensions.html), used to create, operate and delete files inside the enclave.
-WAMR supports the mapping of IPFS on WASI functions related to file interactions, providing seamless persistence, confidentiality and integrity to the hosted WebAssembly applications in the enclave.
+Intel SGX introduced a feature called [Intel Protection File System Library (IPFS)](https://www.intel.com/content/www/us/en/developer/articles/technical/overview-of-intel-protected-file-system-library-using-software-guard-extensions.html) to create, operate and delete files inside the enclave.
+WAMR supports the mapping of IPFS on WASI functions related to file interactions, providing seamless persistence with confidentiality and integrity to the hosted WebAssembly applications in the enclave.
 
-Support of SGX IPFS is an optional feature.
+The support of SGX IPFS is an optional feature.
 To opt-in, enable the flag `WAMR_SGX_IPFS` in the `CMakeLists.txt`:
 
 ```cmake
 if (NOT DEFINED WAMR_SGX_IPFS)
-  # Disable SIMD by default
+  # Disable SGX IPFS by default
   set (WAMR_SGX_IPFS 1)
 endif ()
 ```
 
 Furthermore, the support of IPFS requires the following changes:
-the enclave must be linked with the trusted IPFS library (`-lsgx_tprotected_fs`),
-the application outside of the enclave must be linked with the untrusted IPFS library (`-lsgx_uprotected_fs`),
-the EDL file must include the following import statement:
+ - the enclave must be linked with the trusted IPFS library (`-lsgx_tprotected_fs`),
+ - the application outside of the enclave must be linked with the untrusted IPFS library (`-lsgx_uprotected_fs`),
+ - the EDL file must include the following import statement:
 
 ```edl
 from "sgx_tprotected_fs.edl" import *;
@@ -227,27 +227,28 @@ One can observe the usage of IPFS by running the [file sample](../samples/file/)
 Enabling the SGX IPFS on this sample project leads to the generation of an encrypted text file.
 
 
-### Mapping of POSIX/WASI API to IPFS API
+### Mapping of WASI/POSIX to IPFS
 This table summarizes how WASI is mapped to POSIX and IPFS.
-Since IPFS is a subset of the POSIX/WASI, emulation is performed to fill the gaps.
+Since IPFS is a subset of the WASI/POSIX, emulation is performed to fill the missing implementation.
 
-| WASI                   | POSIX             | IPFS                                                                                      |
-|------------------------|-------------------|-------------------------------------------------------------------------------------------|
-| `fd_read`              | `read`/`readv`    | `sgx_fread`                                                                               |
-| `fd_write`             | `writev`          | `sgx_fwrite`                                                                              |
-| `fd_close`             | `close`           | `sgx_fclose`                                                                              |
-| `path_open`            | `openat`          | `sgx_fopen`                                                                               |
-| `fd_datasync`          | `fsync`           | `sgx_fflush`                                                                              |
-| `fd_tell`              | `lseek`           | `sgx_ftell`                                                                               |
-| `fd_filestat_set_size` | `ftruncate`       | Not supported. Emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fwrite`.                       |
-| `fd_seek`              | `lseek`           | The POSIX and IPFS behaviors differ. Emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fwrite`. |
-| `fd_pwrite`            | `pwrite`          | Not supported. Emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fwrite`.                       |
-| `fd_pread`             | `pread`           | Not supported. Emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fread`.                        |
-| `fd_allocate`          | `posix_fallocate` | Not supported. Emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fwrite`/`sgx_fflush`.          |
+| WASI                   | POSIX             | IPFS                                                                                                                    |
+|------------------------|-------------------|-------------------------------------------------------------------------------------------------------------------------|
+| `fd_read`              | `readv`           | `sgx_fread`                                                                                                             |
+| `fd_write`             | `writev`          | `sgx_fwrite`                                                                                                            |
+| `fd_close`             | `close`           | `sgx_fclose`                                                                                                            |
+| `path_open`            | `openat`          | `sgx_fopen`                                                                                                             |
+| `fd_datasync`          | `fsync`           | `sgx_fflush`                                                                                                            |
+| `fd_tell`              | `lseek`           | `sgx_ftell`                                                                                                             |
+| `fd_filestat_set_size` | `ftruncate`       | Shrinking files is not supported, nor emulated. Extending files is emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fwrite`. |
+| `fd_seek`              | `lseek`           | The POSIX and IPFS behaviors differ. Emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fwrite`.                               |
+| `fd_pwrite`            | `pwrite`          | Not supported. Emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fwrite`.                                                     |
+| `fd_pread`             | `pread`           | Not supported. Emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fread`.                                                      |
+| `fd_allocate`          | `posix_fallocate` | Not supported. Emulated using `sgx_fseek`/`sgx_ftell`/`sgx_fwrite`/`sgx_fflush`.                                        |
 
 
 ### Performance overheads
-Some benchmarks have been conducted using a similar implementation of SGX IPFS with Twine, an early and academic adaptation of WAMR in Intel SGX with WASI support. The results can be found in [this paper](https://arxiv.org/abs/2103.15860).
+Many benchmarks have assessed the overheads caused by IPFS through WASI functions using Twine, an early and academic adaptation of WAMR in Intel SGX with WASI support.
+The results can be found in [this paper](https://arxiv.org/abs/2103.15860).
 
 ### Limitations
 The threat model and the limitations of SGX IPFS can be found in [the official documentation](https://www.intel.com/content/dam/develop/external/us/en/documents/overviewofintelprotectedfilesystemlibrary.pdf).
