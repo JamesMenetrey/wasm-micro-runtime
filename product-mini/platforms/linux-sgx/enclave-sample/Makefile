@@ -7,8 +7,10 @@ SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= SIM
 SGX_ARCH ?= x64
 SGX_DEBUG ?= 0
-SGX_IPFS ?= 0
 SPEC_TEST ?= 0
+
+# This variable is automatically set by CMakeLists.txt
+SGX_IPFS = 0
 
 VMLIB_BUILD_DIR ?= $(CURDIR)/../build
 LIB_RATS_SRC ?= $(VMLIB_BUILD_DIR)/_deps/librats-build
