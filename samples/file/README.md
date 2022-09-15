@@ -1,7 +1,7 @@
 # "file" sample introduction
 
 This sample demonstrates the supported file interaction API of WASI.
-This sample can also demonstrates the SGX IPFS (Intel Protected File System), enabling an enclave to seal and unseal data at rest.
+This sample can also demonstrate the SGX IPFS (Intel Protected File System), enabling an enclave to seal and unseal data at rest.
 
 ## Preparation
 
