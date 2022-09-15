@@ -105,7 +105,6 @@ ipfs_readv(void *sgx_file, const struct iovec *iov, int iovcnt)
     return number_of_read_bytes;
 }
 
-// Emulates pread using sgx_read.
 size_t
 ipfs_pread(void *sgx_file, void *buffer, size_t size, off_t offset)
 {
@@ -162,7 +161,6 @@ ipfs_writev(void *sgx_file, const struct iovec *iov, int iovcnt)
     return number_of_written_bytes;
 }
 
-// Emulates pwrite using sgx_write.
 size_t
 ipfs_pwrite(void *sgx_file, const void *buffer, size_t size, off_t offset)
 {
@@ -347,8 +345,8 @@ ipfs_ftell(void *sgx_file)
     return ftell_result;
 }
 
-// Emulates ftruncate with IPFS. The official API does not provide a way
-// to truncate files. Only files extension is supported.
+// The official API does not provide a way to truncate files.
+// Only files extension is supported.
 int
 ipfs_ftruncate(void *sgx_file, off_t len)
 {
