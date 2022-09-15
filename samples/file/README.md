@@ -6,7 +6,7 @@ This sample can also demonstrate the SGX IPFS (Intel Protected File System), ena
 ## Preparation
 
 Please install WASI SDK, download the [wasi-sdk release](https://github.com/CraneStation/wasi-sdk/releases) and extract the archive to default path `/opt/wasi-sdk`.
-For testing with SGX IPFS, follow the instructions in [the documentation of SGX for WAMR](../../doc/linux_sgx.md#embed-wamr-vmcore-in-linux-sgx).
+For testing with SGX IPFS, follow the instructions in [the documentation of SGX for WAMR](../../doc/linux_sgx.md#sgx-intel-protected-file-system).
 
 ## Build the sample
 
@@ -109,4 +109,4 @@ The file size is 4096.
 All the tests passed!
 ```
 
-For SGX IPFS, refer to [SGX Intel Protected File System](../../doc/linux_sgx.md#embed-wamr-vmcore-in-linux-sgx) for more details.
+For SGX IPFS, refer to [SGX Intel Protected File System](../../doc/linux_sgx.md#sgx-intel-protected-file-system) for more details.
