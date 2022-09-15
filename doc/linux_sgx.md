@@ -219,7 +219,7 @@ Furthermore, the support of IPFS requires the following changes:
 from "sgx_tprotected_fs.edl" import *;
 ```
 
-When using the [enclave-sample](../product-mini/platforms/linux-sgx/enclave-sample/) project, compiling with the flag `SGX_IPFS=1` enables these changes automatically.
+When using the [enclave-sample](../product-mini/platforms/linux-sgx/enclave-sample/) project, compiling with the flag `WAMR_SGX_IPFS` in the `CMakeLists.txt` enables these changes automatically.
 
 
 ### Verification of SGX IPFS
