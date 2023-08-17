@@ -11,12 +11,14 @@
 int
 ocall_clock_gettime(unsigned clock_id, void *tp_buf, unsigned int tp_buf_size)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return clock_gettime((clockid_t)clock_id, (struct timespec *)tp_buf);
 }
 
 int
 ocall_clock_getres(int clock_id, void *res_buf, unsigned int res_buf_size)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return clock_getres(clock_id, (struct timespec *)res_buf);
 }
 
@@ -24,12 +26,14 @@ int
 ocall_utimensat(int dirfd, const char *pathname, const void *times_buf,
                 unsigned int times_buf_size, int flags)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return utimensat(dirfd, pathname, (struct timespec *)times_buf, flags);
 }
 
 int
 ocall_futimens(int fd, const void *times_buf, unsigned int times_buf_size)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return futimens(fd, (struct timespec *)times_buf);
 }
 
@@ -38,6 +42,7 @@ ocall_clock_nanosleep(unsigned clock_id, int flags, const void *req_buf,
                       unsigned int req_buf_size, const void *rem_buf,
                       unsigned int rem_buf_size)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return clock_nanosleep((clockid_t)clock_id, flags,
                            (struct timespec *)req_buf,
                            (struct timespec *)rem_buf);

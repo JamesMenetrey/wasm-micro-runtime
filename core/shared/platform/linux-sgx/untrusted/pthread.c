@@ -9,6 +9,7 @@
 int
 ocall_pthread_rwlock_init(void **rwlock, void *attr)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     int ret = 0;
 
     *rwlock = malloc(sizeof(pthread_rwlock_t));
@@ -27,6 +28,7 @@ ocall_pthread_rwlock_init(void **rwlock, void *attr)
 int
 ocall_pthread_rwlock_destroy(void *rwlock)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     pthread_rwlock_t *lock = (pthread_rwlock_t *)rwlock;
     int ret;
 
@@ -38,17 +40,20 @@ ocall_pthread_rwlock_destroy(void *rwlock)
 int
 ocall_pthread_rwlock_rdlock(void *rwlock)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return pthread_rwlock_rdlock((pthread_rwlock_t *)rwlock);
 }
 
 int
 ocall_pthread_rwlock_wrlock(void *rwlock)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return pthread_rwlock_wrlock((pthread_rwlock_t *)rwlock);
 }
 
 int
 ocall_pthread_rwlock_unlock(void *rwlock)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return pthread_rwlock_unlock((pthread_rwlock_t *)rwlock);
 }

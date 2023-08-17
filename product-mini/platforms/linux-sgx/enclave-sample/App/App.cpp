@@ -43,6 +43,7 @@ pal_get_enclave_id(void)
 int
 ocall_print(const char *str)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return printf("%s", str);
 }
 

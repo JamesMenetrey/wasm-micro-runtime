@@ -12,6 +12,7 @@
 int
 ocall_socket(int domain, int type, int protocol)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return socket(domain, type, protocol);
 }
 
@@ -19,12 +20,14 @@ int
 ocall_getsockopt(int sockfd, int level, int optname, void *val_buf,
                  unsigned int val_buf_size, void *len_buf)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return getsockopt(sockfd, level, optname, val_buf, (socklen_t *)len_buf);
 }
 
 ssize_t
 ocall_sendmsg(int sockfd, void *msg_buf, unsigned int msg_buf_size, int flags)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     struct msghdr *msg = (struct msghdr *)msg_buf;
     int i;
     ssize_t ret;
@@ -49,6 +52,7 @@ ocall_sendmsg(int sockfd, void *msg_buf, unsigned int msg_buf_size, int flags)
 ssize_t
 ocall_recvmsg(int sockfd, void *msg_buf, unsigned int msg_buf_size, int flags)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     struct msghdr *msg = (struct msghdr *)msg_buf;
     int i;
     ssize_t ret;
@@ -73,6 +77,7 @@ ocall_recvmsg(int sockfd, void *msg_buf, unsigned int msg_buf_size, int flags)
 int
 ocall_shutdown(int sockfd, int how)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return shutdown(sockfd, how);
 }
 
@@ -80,42 +85,49 @@ int
 ocall_setsockopt(int sockfd, int level, int optname, void *optval,
                  unsigned int optlen)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return setsockopt(sockfd, level, optname, optval, optlen);
 }
 
 int
 ocall_bind(int sockfd, const void *addr, uint32_t addrlen)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return bind(sockfd, (const struct sockaddr *)addr, addrlen);
 }
 
 int
 ocall_getsockname(int sockfd, void *addr, uint32_t *addrlen, uint32_t addr_size)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return getsockname(sockfd, (struct sockaddr *)addr, addrlen);
 }
 
 int
 ocall_getpeername(int sockfd, void *addr, uint32_t *addrlen, uint32_t addr_size)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return getpeername(sockfd, (struct sockaddr *)addr, addrlen);
 }
 
 int
 ocall_listen(int sockfd, int backlog)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return listen(sockfd, backlog);
 }
 
 int
 ocall_accept(int sockfd, void *addr, uint32_t *addrlen, uint32_t addr_size)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return accept(sockfd, (struct sockaddr *)addr, addrlen);
 }
 
 int
 ocall_recv(int sockfd, void *buf, size_t len, int flags)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return recv(sockfd, buf, len, flags);
 }
 
@@ -123,6 +135,7 @@ ssize_t
 ocall_recvfrom(int sockfd, void *buf, size_t len, int flags, void *src_addr,
                uint32_t *addrlen, uint32_t addr_size)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return recvfrom(sockfd, buf, len, flags, (struct sockaddr *)src_addr,
                     addrlen);
 }
@@ -130,6 +143,7 @@ ocall_recvfrom(int sockfd, void *buf, size_t len, int flags, void *src_addr,
 int
 ocall_send(int sockfd, const void *buf, size_t len, int flags)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return send(sockfd, buf, len, flags);
 }
 
@@ -137,6 +151,7 @@ ssize_t
 ocall_sendto(int sockfd, const void *buf, size_t len, int flags,
              void *dest_addr, uint32_t addrlen)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return sendto(sockfd, buf, len, flags, (struct sockaddr *)dest_addr,
                   addrlen);
 }
@@ -144,5 +159,6 @@ ocall_sendto(int sockfd, const void *buf, size_t len, int flags,
 int
 ocall_connect(int sockfd, void *addr, uint32_t addrlen)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return connect(sockfd, (const struct sockaddr *)addr, addrlen);
 }

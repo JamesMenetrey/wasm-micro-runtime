@@ -7,5 +7,6 @@
 int
 ocall_raise(int sig)
 {
+    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
     return raise(sig);
 }
