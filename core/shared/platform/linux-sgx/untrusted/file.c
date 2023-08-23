@@ -240,7 +240,7 @@ ocall_symlinkat(const char *target, int newdirfd, const char *linkpath)
 int
 ocall_ioctl(int fd, unsigned long request, void *arg, unsigned int arg_len)
 {
-    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
+    printf("\n >>> SGX OCALL DETECTED: %s(%d, %lu, %p, %u).\n", __func__, fd, request, arg, arg_len);
     /* support just int *arg temporally */
     return ioctl(fd, request, (int *)arg);
 }

@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <pthread.h>
+#include <stdio.h>
 
 int
 ocall_pthread_rwlock_init(void **rwlock, void *attr)

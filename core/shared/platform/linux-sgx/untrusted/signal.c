@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
  */
 #include <signal.h>
+#include <stdio.h>
 
 int
 ocall_raise(int sig)

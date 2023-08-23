@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdio.h>
 
 int
 ocall_socket(int domain, int type, int protocol)
@@ -85,7 +86,7 @@ int
 ocall_setsockopt(int sockfd, int level, int optname, void *optval,
                  unsigned int optlen)
 {
-    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
+    printf("\n >>> SGX OCALL DETECTED: %s(%d, %d, %d, %p, %u).\n", __func__, sockfd, level, optname, optval, optlen);
     return setsockopt(sockfd, level, optname, optval, optlen);
 }
 
@@ -135,7 +136,7 @@ ssize_t
 ocall_recvfrom(int sockfd, void *buf, size_t len, int flags, void *src_addr,
                uint32_t *addrlen, uint32_t addr_size)
 {
-    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
+    printf("\n >>> SGX OCALL DETECTED: %s(%d, %p, %zu, %d, %p, %u, %u).\n", __func__, sockfd, buf, len, flags, src_addr, *addrlen, addr_size);
     return recvfrom(sockfd, buf, len, flags, (struct sockaddr *)src_addr,
                     addrlen);
 }
@@ -143,7 +144,7 @@ ocall_recvfrom(int sockfd, void *buf, size_t len, int flags, void *src_addr,
 int
 ocall_send(int sockfd, const void *buf, size_t len, int flags)
 {
-    printf("\n >>> SGX OCALL DETECTED: %s.\n", __func__);
+    printf("\n >>> SGX OCALL DETECTED: %s(%d, %p, %zu, %d).\n", __func__, sockfd, buf, len, flags);
     return send(sockfd, buf, len, flags);
 }
 
