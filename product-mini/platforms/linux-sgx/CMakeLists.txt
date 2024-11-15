@@ -34,7 +34,7 @@ endif ()
 
 if (NOT DEFINED WAMR_BUILD_INTERP)
   # Enable Interpreter by default
-  set (WAMR_BUILD_INTERP 1)
+  set (WAMR_BUILD_INTERP 0)
 endif ()
 
 if (NOT DEFINED WAMR_BUILD_AOT)
@@ -70,7 +70,7 @@ endif()
 
 if (NOT DEFINED WAMR_BUILD_FAST_INTERP)
   # Enable fast interpreter
-  set (WAMR_BUILD_FAST_INTERP 1)
+  set (WAMR_BUILD_FAST_INTERP 0)
 endif ()
 
 if (NOT DEFINED WAMR_BUILD_MULTI_MODULE)

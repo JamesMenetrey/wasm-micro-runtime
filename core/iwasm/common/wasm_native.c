@@ -75,6 +75,9 @@ get_libc_emcc_export_apis(NativeSymbol **p_libc_emcc_apis);
 uint32
 get_lib_rats_export_apis(NativeSymbol **p_lib_rats_apis);
 
+uint32
+get_lib_scheduler_export_apis(NativeSymbol **p_lib_rats_apis);
+
 static bool
 compare_type_with_signature(uint8 type, const char signature)
 {
@@ -485,7 +488,8 @@ wasm_native_init()
     || WASM_ENABLE_LIB_RATS != 0 || WASM_ENABLE_WASI_NN != 0             \
     || WASM_ENABLE_APP_FRAMEWORK != 0 || WASM_ENABLE_LIBC_WASI != 0      \
     || WASM_ENABLE_LIB_PTHREAD != 0 || WASM_ENABLE_LIB_WASI_THREADS != 0 \
-    || WASM_ENABLE_WASI_NN != 0 || WASM_ENABLE_WASI_EPHEMERAL_NN != 0
+    || WASM_ENABLE_WASI_NN != 0 || WASM_ENABLE_WASI_EPHEMERAL_NN != 0    \
+    || WASM_ENABLE_LIB_SCHEDULER != 0
     NativeSymbol *native_symbols;
     uint32 n_native_symbols;
 #endif
@@ -579,6 +583,14 @@ wasm_native_init()
         goto fail;
 #endif /* WASM_ENABLE_LIB_RATS */
 
+#if WASM_ENABLE_LIB_SCHEDULER != 0
+    n_native_symbols = get_lib_scheduler_export_apis(&native_symbols);
+    if (n_native_symbols > 0
+        && !wasm_native_register_natives("env", native_symbols,
+                                         n_native_symbols))
+        goto fail;
+#endif /* WASM_ENABLE_LIB_SCHEDULER */
+
 #if WASM_ENABLE_WASI_NN != 0 || WASM_ENABLE_WASI_EPHEMERAL_NN != 0
     if (!wasi_nn_initialize())
         goto fail;
@@ -602,7 +614,8 @@ wasm_native_init()
     || WASM_ENABLE_LIB_RATS != 0 || WASM_ENABLE_WASI_NN != 0             \
     || WASM_ENABLE_APP_FRAMEWORK != 0 || WASM_ENABLE_LIBC_WASI != 0      \
     || WASM_ENABLE_LIB_PTHREAD != 0 || WASM_ENABLE_LIB_WASI_THREADS != 0 \
-    || WASM_ENABLE_WASI_NN != 0 || WASM_ENABLE_WASI_EPHEMERAL_NN != 0
+    || WASM_ENABLE_WASI_NN != 0 || WASM_ENABLE_WASI_EPHEMERAL_NN != 0    \
+    || WASM_ENABLE_LIB_SCHEDULER
         goto fail;
 #else
         return false;
@@ -616,7 +629,8 @@ wasm_native_init()
     || WASM_ENABLE_LIB_RATS != 0 || WASM_ENABLE_WASI_NN != 0             \
     || WASM_ENABLE_APP_FRAMEWORK != 0 || WASM_ENABLE_LIBC_WASI != 0      \
     || WASM_ENABLE_LIB_PTHREAD != 0 || WASM_ENABLE_LIB_WASI_THREADS != 0 \
-    || WASM_ENABLE_WASI_NN != 0 || WASM_ENABLE_WASI_EPHEMERAL_NN != 0
+    || WASM_ENABLE_WASI_NN != 0 || WASM_ENABLE_WASI_EPHEMERAL_NN != 0    \
+    || WASM_ENABLE_LIB_SCHEDULER
 fail:
     wasm_native_destroy();
     return false;

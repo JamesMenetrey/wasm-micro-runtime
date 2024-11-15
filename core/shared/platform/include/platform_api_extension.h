@@ -1660,6 +1660,19 @@ __wasi_errno_t
 os_clock_time_get(__wasi_clockid_t clock_id, __wasi_timestamp_t precision,
                   __wasi_timestamp_t *time);
 
+/****************************************************
+ *                Scheduler functions               *
+ ****************************************************/
+
+int
+os_sched_setscheduler(uint pid, int policy, const void *param);
+
+int
+os_sched_getparam(uint pid, void *param);
+
+int
+os_sched_getscheduler(uint pid);
+
 #ifdef __cplusplus
 }
 #endif

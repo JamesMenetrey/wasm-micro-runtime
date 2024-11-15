@@ -154,5 +154,15 @@ enclave {
                              unsigned int optlen);
         int ocall_shutdown(int sockfd, int how);
         int ocall_socket(int domain, int type, int protocol);
+
+        /* scheduler */
+        int ocall_sched_setscheduler(int pid,
+                                     int policy,
+                                     [in, size=param_size]const void *param,
+                                     unsigned int param_size);
+        int ocall_sched_getscheduler(int pid);
+        int ocall_sched_getparam(int pid,
+                                 [out, size=param_size]void *param,
+                                 unsigned int param_size);
     };
 };
