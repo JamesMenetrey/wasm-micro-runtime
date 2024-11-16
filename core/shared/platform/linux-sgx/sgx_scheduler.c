@@ -27,6 +27,8 @@ int
 ocall_sched_getparam(int *p_ret, uint pid, const struct sched_param *param, unsigned int param_size);
 int
 ocall_sched_getscheduler(int *p_ret, uint pid);
+int
+ocall_sched_setaffinity(int *p_ret, uint pid, size_t cpu_set_size, const void *mask);
 
 int
 os_sched_setscheduler(uint pid, int policy, const void *param)
@@ -66,6 +68,24 @@ os_sched_getscheduler(uint pid)
     int ret;
 
     if (ocall_sched_getscheduler(&ret, pid) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+        return -1;
+    }
+    
+    if (ret == -1)
+        errno = get_errno();
+
+    return ret;
+}
+
+int
+os_sched_setaffinity(uint pid,
+                     size_t cpu_set_size,
+                     const void *mask)
+{
+    int ret;
+
+    if (ocall_sched_setaffinity(&ret, pid, cpu_set_size, mask) != SGX_SUCCESS) {
         TRACE_OCALL_FAIL();
         return -1;
     }

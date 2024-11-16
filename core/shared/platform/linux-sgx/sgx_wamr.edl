@@ -164,5 +164,10 @@ enclave {
         int ocall_sched_getparam(int pid,
                                  [out, size=param_size]void *param,
                                  unsigned int param_size);
+        int ocall_sched_setaffinity(
+            int pid,
+            size_t cpu_set_size,
+            [in, size=cpu_set_size] const void* mask
+        );
     };
 };

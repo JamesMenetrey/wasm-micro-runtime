@@ -24,3 +24,10 @@ os_sched_getscheduler(uint pid)
 {
     return sched_getscheduler(pid);
 }
+
+int os_sched_setaffinity(uint pid,
+                         size_t cpu_set_size,
+                         const void *mask)
+{
+    return sched_setaffinity(pid, cpu_set_size, mask);
+}

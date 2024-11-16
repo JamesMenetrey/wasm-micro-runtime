@@ -33,6 +33,13 @@ sched_getparam_wrapper(wasm_exec_env_t exec_env,
     return os_sched_getparam(pid, param);
 }
 
+static int sched_setaffinity_wrapper(uint pid,
+                             size_t cpu_set_size,
+                             const void *mask)
+{
+    return os_sched_setaffinity(pid, cpu_set_size, mask);
+}
+
 /* clang-format off */
 #define REG_NATIVE_FUNC(func_name, signature) \
     { #func_name, func_name##_wrapper, signature, NULL }
@@ -42,6 +49,7 @@ static NativeSymbol native_symbols_lib_scheduler[] = {
     REG_NATIVE_FUNC(sched_setscheduler, "(ii*)i"),
     REG_NATIVE_FUNC(sched_getscheduler, "(i)i"),
     REG_NATIVE_FUNC(sched_getparam, "(i*)i"),
+    REG_NATIVE_FUNC(sched_setaffinity, "(ii*)i"),
 };
 
 uint32

@@ -1673,6 +1673,9 @@ os_sched_getparam(uint pid, void *param);
 int
 os_sched_getscheduler(uint pid);
 
+int
+os_sched_setaffinity(uint pid, size_t cpu_set_size, const void *mask);
+
 #ifdef __cplusplus
 }
 #endif
