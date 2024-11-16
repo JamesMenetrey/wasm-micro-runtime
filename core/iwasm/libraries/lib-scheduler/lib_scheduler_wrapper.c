@@ -33,9 +33,10 @@ sched_getparam_wrapper(wasm_exec_env_t exec_env,
     return os_sched_getparam(pid, param);
 }
 
-static int sched_setaffinity_wrapper(uint pid,
-                             size_t cpu_set_size,
-                             const void *mask)
+static int sched_setaffinity_wrapper(wasm_exec_env_t exec_env,
+                                     uint pid,
+                                     uint cpu_set_size,
+                                     const void *mask)
 {
     return os_sched_setaffinity(pid, cpu_set_size, mask);
 }

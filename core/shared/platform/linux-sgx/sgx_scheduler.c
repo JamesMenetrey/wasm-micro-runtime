@@ -28,7 +28,7 @@ ocall_sched_getparam(int *p_ret, uint pid, const struct sched_param *param, unsi
 int
 ocall_sched_getscheduler(int *p_ret, uint pid);
 int
-ocall_sched_setaffinity(int *p_ret, uint pid, size_t cpu_set_size, const void *mask);
+ocall_sched_setaffinity(int *p_ret,uint pid, size_t cpu_set_size, const void *mask);
 
 int
 os_sched_setscheduler(uint pid, int policy, const void *param)
