@@ -735,6 +735,17 @@ pthread_detach_wrapper(wasm_exec_env_t exec_env, uint32 thread)
 }
 
 static int32
+pthread_setaffinity_np_wrapper(wasm_exec_env_t exec_env, uint32 thread,
+                               uint32 cpu_set_size, const void *cpu_set)
+{
+    os_printf(">>> thread_setaffinity_np_wrapper(%d, %d, %p)\n", thread, cpu_set_size, cpu_set);
+    ThreadInfoNode *node = get_thread_info(exec_env, thread);
+    os_printf(">>> after get_thread_info; node = %p\n", node);
+
+    return os_thread_setaffinity_np(node->exec_env->handle, cpu_set_size, cpu_set);
+}
+
+static int32
 pthread_cancel_wrapper(wasm_exec_env_t exec_env, uint32 thread)
 {
     ThreadInfoNode *node;
@@ -1320,6 +1331,7 @@ static NativeSymbol native_symbols_lib_pthread[] = {
     REG_NATIVE_FUNC(pthread_create, "(**ii)i"),
     REG_NATIVE_FUNC(pthread_join, "(ii)i"),
     REG_NATIVE_FUNC(pthread_detach, "(i)i"),
+    REG_NATIVE_FUNC(pthread_setaffinity_np, "(ii*)i"),
     REG_NATIVE_FUNC(pthread_cancel, "(i)i"),
     REG_NATIVE_FUNC(pthread_self, "()i"),
     REG_NATIVE_FUNC(__pthread_self, "()i"),

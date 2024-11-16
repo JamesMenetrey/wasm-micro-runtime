@@ -12,6 +12,12 @@ typedef struct {
     void *arg;
 } thread_wrapper_arg;
 
+#define TRACE_FUNC() os_printf("undefined %s\n", __FUNCTION__)
+#define TRACE_OCALL_FAIL() os_printf("ocall %s failed!\n", __FUNCTION__)
+
+int
+ocall_pthread_setaffinity_np(int *p_ret, korp_tid thread, uint32 cpu_set_size, const void *cpu_set);
+
 static void *
 os_thread_wrapper(void *arg)
 {
@@ -175,6 +181,22 @@ os_cond_broadcast(korp_cond *cond)
 
 #endif
     return BHT_OK;
+}
+
+int
+os_thread_setaffinity_np(korp_tid thread, uint32 cpu_set_size, const void *cpu_set)
+{
+#ifndef SGX_DISABLE_PTHREAD
+    int ret = -1;
+
+    if (ocall_pthread_setaffinity_np(&ret, thread, cpu_set_size, cpu_set) != SGX_SUCCESS) {
+        TRACE_OCALL_FAIL();
+    }
+
+    return ret;
+#else
+    return BH_OK;
+#endif
 }
 
 int

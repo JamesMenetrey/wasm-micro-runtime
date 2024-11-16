@@ -86,6 +86,12 @@ os_thread_join(korp_tid thread, void **retval);
 int os_thread_detach(korp_tid);
 
 /**
+ * TODO: document this
+ */
+int
+os_thread_setaffinity_np(korp_tid thread, uint32 cpu_set_size, const void *cpu_set);
+
+/**
  * Exit current thread
  *
  * @param retval the return value of the current thread

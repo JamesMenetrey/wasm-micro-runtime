@@ -116,6 +116,7 @@ enclave {
         int ocall_pthread_rwlock_rdlock([user_check]void *rwlock);
         int ocall_pthread_rwlock_wrlock([user_check]void *rwlock);
         int ocall_pthread_rwlock_unlock([user_check]void *rwlock);
+        int ocall_pthread_setaffinity_np(int thread, unsigned int cpu_set_size, [in, size=cpu_set_size]const void *cpu_set);
 
         int ocall_get_errno();
 

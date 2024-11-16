@@ -409,6 +409,13 @@ os_thread_detach(korp_tid thread)
     return pthread_detach(thread);
 }
 
+int
+os_pthread_setaffinity_np(korp_tid thread, uint32 cpu_set_size, const void *cpu_set)
+{
+    os_printf(">>> os_pthread_setaffinity_np(%d, %d, %p)\n", thread, cpu_set_size, cpu_set);
+    return pthread_setaffinity_np(thread, cpu_set_size, cpu_set);
+}
+
 void
 os_thread_exit(void *retval)
 {
